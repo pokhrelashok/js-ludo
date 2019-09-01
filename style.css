@@ -1,0 +1,141 @@
+#Canvas {
+    flex-wrap: wrap;
+    margin: 0 auto;
+    display: flex;
+    width: 720px;
+    height: 720px;
+}
+
+#Canvas .box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 40%;
+    height: 40%;
+}
+
+#Canvas .path {
+    box-sizing: border-box;
+    width: 20%;
+    height: 40%;
+}
+
+#Canvas .path.horizontal {
+    width: 40% !important;
+    height: 20% !important;
+}
+
+#Canvas .gameOver {
+    position: relative;
+    height: 20%;
+    width: 20%;
+    background-color: #ecf0f1;
+}
+
+#Canvas .home {
+    box-sizing: border-box;
+    padding: 40px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 90%;
+    width: 90%;
+    border-radius: 50%;
+    flex-wrap: wrap;
+}
+
+#Canvas .red {
+    background-color: #e74c3c !important;
+}
+
+#Canvas .green {
+    background-color: #2ecc71 !important;
+}
+
+#Canvas .blue {
+    background-color: #3498db !important;
+}
+
+#Canvas .yellow {
+    background-color: #f1c40f !important;
+}
+
+#Canvas .home .inner_space {
+    position: relative;
+    height: 60px;
+    width: 60px;
+    border-radius: 50%;
+    background-color: #ecf0f1
+}
+
+#Canvas .path {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+
+#Canvas .path article {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    padding: 0;
+    margin: 0;
+}
+
+#Canvas .path.vertical article {
+    width: 100%;
+    height: 16.67%;
+    flex-direction: row;
+}
+
+#Canvas .path.horizontal article {
+    height: 100%;
+    width: 16.67%
+}
+
+#Canvas .path div {
+    position: relative;
+    box-sizing: border-box;
+    border: 1px solid black;
+    background-color: #ecf0f1;
+}
+
+#Canvas .path.horizontal div {
+    height: 33.34%;
+    width: 100%;
+}
+
+#Canvas .path.vertical div {
+    width: 33.34%;
+    height: 100%;
+}
+
+.Gotti {
+    margin: auto !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    right: 0 !important;
+    height: 40px !important;
+    width: 40px !important;
+}
+
+.roll {
+    font-size: 20px;
+    color: #ecf0f1;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.star {
+    margin: auto !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    right: 0 !important;
+    height: 40px !important;
+    width: 40px !important;
+}

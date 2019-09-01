@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Ludo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="Canvas">
+        <section class="box box_red">
+            <div class="red home">
+                <div class="home_red inner_space">
+                    <img src="red.png" class="Gotti" id="red1">
+                </div>
+                <div class="home_red inner_space">
+                    <img src="red.png" class="Gotti" id="red2">
+                </div>
+                <div class="home_red inner_space">
+                    <img src="red.png" class="Gotti" id="red3">
+                </div>
+                <div class="home_red inner_space">
+                    <img src="red.png" class="Gotti" id="red4">
+                </div>
+            </div>
+        </section>
+        <section class="path vertical">
+            <article>
+                <div class="vertical_green" id="50"></div>
+                <div class="vertical_green" id="51"></div>
+                <div class="vertical_green" id="52"></div>
+            </article>
+            <article>
+                <div class="vertical_green" id="49"></div>
+                <div class="vertical_green green" id="52"></div>
+                <div class="vertical_green green" id="1">
+                    <img class='star' src="star.png">
+                </div>
+            </article>
+            <article>
+                <div class="vertical_green green" id="48">
+                    <img class='star' src="star.png">
+                </div>
+                <div class="vertical_green green" id="53"></div>
+                <div class="vertical_green" id="2"></div>
+            </article>
+            <article>
+                <div class="vertical_green" id="47"></div>
+                <div class="vertical_green green" id="54"></div>
+                <div class="vertical_green" id="3"></div>
+            </article>
+            <article>
+                <div class="vertical_green" id="46"></div>
+                <div class="vertical_green green" id="55"></div>
+                <div class="vertical_green" id="4"></div>
+            </article>
+            <article>
+                <div class="vertical_green" id="45"></div>
+                <div class="vertical_green green" id="56"></div>
+                <div class="vertical_green" id="5"></div>
+            </article>
+        </section>
+        <section class="box box_green">
+            <div class="green home">
+                <div class="home_green inner_space">
+                    <img src="green.png" class="Gotti" id="green1">
+                </div>
+                <div class="home_green inner_space">
+                    <img src="green.png" class="Gotti" id="green2">
+                </div>
+                <div class="home_green inner_space">
+                    <img src="green.png" class="Gotti" id="green3">
+                </div>
+                <div class="home_green inner_space">
+                    <img src="green.png" class="Gotti" id="green4">
+                </div>
+            </div>
+        </section>
+        <section class="path horizontal">
+            <article>
+                <div class="horizontal_red" id="39"></div>
+                <div class="horizontal_red" id="38"></div>
+                <div class="horizontal_red" id="37"></div>
+            </article>
+            <article>
+                <div class="horizontal_red red" id="40">
+                    <img class='star' src="star.png">
+                </div>
+                <div class="horizontal_red red" id="52"></div>
+                <div class="horizontal_red " id="36"></div>
+            </article>
+            <article>
+                <div class="horizontal_red" id="41"></div>
+                <div class="horizontal_red red" id="53"></div>
+                <div class="horizontal_red red" id="35">
+                    <img class='star' src="star.png">
+                </div>
+            </article>
+            <article>
+                <div class="horizontal_red" id="42"></div>
+                <div class="horizontal_red red" id="54"></div>
+                <div class="horizontal_red" id="34"></div>
+            </article>
+            <article>
+                <div class="horizontal_red" id="43"></div>
+                <div class="horizontal_red red" id="55"></div>
+                <div class="horizontal_red" id="33"></div>
+            </article>
+            <article>
+                <div class="horizontal_red" id="44"></div>
+                <div class="horizontal_red red" id="56"></div>
+                <div class="horizontal_red" id="32"></div>
+            </article>
+        </section>
+        <div class="gameOver">
+            <EMBED class='gif' SRC='initial.png' style="width:120%; height:120% ; margin-left: -10%; margin-top: -10%;">
+        </div>
+        <section class="path horizontal">
+            <article>
+                <div class="horizontal_yellow" id="6"></div>
+                <div class="horizontal_yellow yellow" id="51"></div>
+                <div class="horizontal_yellow" id="18"></div>
+            </article>
+            <article>
+                <div class="horizontal_yellow" id="7"></div>
+                <div class="horizontal_yellow yellow" id="52"></div>
+                <div class="horizontal_yellow" id="17"></div>
+            </article>
+            <article>
+                <div class="horizontal_yellow" id="8"></div>
+                <div class="horizontal_yellow yellow" id="53"></div>
+                <div class="horizontal_yellow" id="16"></div>
+            </article>
+            <article>
+                <div class="horizontal_yellow yellow" id="9">
+                    <img class='star' src="star.png">
+                </div>
+                <div class="horizontal_yellow yellow" id="54"></div>
+                <div class="horizontal_yellow" id="15"></div>
+            </article>
+            <article>
+                <div class="horizontal_yellow" id="10"></div>
+                <div class="horizontal_yellow yellow" id="55"></div>
+                <div class="horizontal_yellow yellow" id="14">
+                    <img class='star' src="star.png">
+                </div>
+            </article>
+            <article>
+                <div class="horizontal_yellow" id="11"></div>
+                <div class="horizontal_yellow" id="12"></div>
+                <div class="horizontal_yellow " id="13"></div>
+            </article>
+        </section>
+        <section class="box box_blue">
+            <div class="blue home">
+                <div class="home_blue inner_space">
+                    <img src="blue.png" class="Gotti" id="blue1">
+                </div>
+                <div class="home_blue inner_space">
+                    <img src="blue.png" class="Gotti" id="blue2">
+                </div>
+                <div class="home_blue inner_space">
+                    <img src="blue.png" class="Gotti" id="blue3">
+                </div>
+                <div class="home_blue inner_space">
+                    <img src="blue.png" class="Gotti" id="blue4">
+                </div>
+            </div>
+        </section>
+        <section class="path vertical">
+            <article>
+                <div class="vertical_blue" id="31"></div>
+                <div class="vertical_blue blue" id="51"></div>
+                <div class="vertical_blue" id="19"></div>
+            </article>
+            <article>
+                <div class="vertical_blue" id="30"></div>
+                <div class="vertical_blue blue" id="52"></div>
+                <div class="vertical_blue" id="20"></div>
+            </article>
+            <article>
+                <div class="vertical_blue" id="29"></div>
+                <div class="vertical_blue blue" id="53"></div>
+                <div class="vertical_blue" id="21"></div>
+            </article>
+            <article>
+                <div class="vertical_blue" id="28"></div>
+                <div class="vertical_blue blue" id="54"></div>
+                <div class="vertical_blue blue" id="22">
+                    <img class='star' src="star.png">
+                </div>
+            </article>
+            <article>
+                <div class="vertical_blue blue" id="27">
+                    <img class='star' src="star.png">
+                </div>
+                <div class="vertical_blue blue" id="55"></div>
+                <div class="vertical_blue " id="23"></div>
+            </article>
+            <article>
+                <div class="vertical_blue" id="26"></div>
+                <div class="vertical_blue " id="25"></div>
+                <div class="vertical_blue " id="24"></div>
+            </article>
+        </section>
+        <section class="box box_yellow">
+            <div class="yellow home">
+                <div class="home_yellow inner_space">
+                    <img src="yellow.png" class="Gotti" id="yellow1">
+                </div>
+                <div class="home_yellow inner_space">
+                    <img src="yellow.png" class="Gotti" id="yellow2">
+                </div>
+                <div class="home_yellow inner_space">
+                    <img src="yellow.png" class="Gotti" id="yellow3">
+                </div>
+                <div class="home_yellow inner_space">
+                    <img src="yellow.png" class="Gotti" id="yellow4">
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+<script src="script.js"></script>
+
+</html>
