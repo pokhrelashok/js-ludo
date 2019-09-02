@@ -139,3 +139,8 @@
     height: 40px !important;
     width: 40px !important;
 }
+
+.highLight {
+    box-sizing: border-box;
+    border: 3px #0c2461 solid;
+}

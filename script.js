@@ -38,9 +38,37 @@ function Game() {
         this.gameController();
     }
 
-    this.playerIndicator = function () {
 
+    this.playerIndicator = async function () {
+        if (this.sixCount != 1 && this.sixCount != 2) this.playerIndex = (this.playerIndex + 1) % 4;
+        if (this.playerIndex == 0) {
+            this.currentPlayerColor = "red";
+        }
+        if (this.playerIndex == 1) {
+            this.currentPlayerColor = "green";
+        }
+        if (this.playerIndex == 2) {
+            this.currentPlayerColor = "yellow";
+        }
+        if (this.playerIndex == 3) {
+            this.currentPlayerColor = "blue";
+        }
+
+        //adds highlight around home of current player
+        let all = document.getElementsByClassName("home");
+        console.log(all)
+        for (let i = 0; i < all.length; i++) {
+            if (all[i].className.includes("highLight")) {
+                all[i].classList.remove("highLight");
+                console.log("removed highlight")
+                break;
+            }
+        }
+        let home = document.querySelector("." + this.currentPlayerColor + ".home");
+        home.classList.add('highLight')
     }
+
+    this.playerIndicator();
 
     this.moveGotti = async function (amount, id) {
         if (id.includes(this.currentPlayerColor) && this.hasMoved == 0) {
@@ -54,7 +82,6 @@ function Game() {
                 console.log(fd)
                 fd.appendChild(g);
             }
-            if (this.sixCount != 1 && this.sixCount != 2) this.playerIndex = (this.playerIndex + 1) % 4;
             this.hasMoved = 1;
         } else {
             console.log("afno gotti move garna sala")
@@ -127,21 +154,6 @@ function Game() {
     }
 
     this.gameController = async function () {
-        console.log(this.playerIndex)
-        if (this.playerIndex == 0) {
-            this.currentPlayerColor = "red";
-        }
-        if (this.playerIndex == 1) {
-            this.currentPlayerColor = "green";
-        }
-        if (this.playerIndex == 2) {
-            this.currentPlayerColor = "yellow";
-        }
-        if (this.playerIndex == 3) {
-            this.currentPlayerColor = "blue";
-        }
-
-
         if (this.movementAmount != 6) {
             this.sixCount = 0;
         } else {
@@ -163,14 +175,11 @@ function Game() {
                 if (this.gottisOutside[this.playerIndex].length == 0) {
                     //eutai gotti bahira xaina vane skip gar
                     this.hasMoved = 1;
-                    this.playerIndex = (this.playerIndex + 1) % 4;
                     console.log("player changed")
                 } else if (this.gottisOutside[this.playerIndex].length == 1) {
                     console.log("yes automove")
                     this.moveGotti(this.movementAmount, this.gottisOutside[this.playerIndex][0]);
-                    if (this.sixCount != 1 && this.sixCount != 2) {
-                        console.log("player changed")
-                    }
+                    console.log("player changed")
                 } else {
                     console.log("sala kei ta xaina bahira")
                     console.log("afai move gar sala")
@@ -181,9 +190,9 @@ function Game() {
             this.sixCount = 0;
             this.movementAmount = 0;
             this.hasMoved = 1;
-            this.playerIndex = (this.playerIndex + 1) % 4;
             console.log("player changed")
         }
+        this.playerIndicator();
     }
 
     this.isSafe = function (position) {
@@ -193,7 +202,7 @@ function Game() {
         else {
             console.log("noone else hyere")
         }
-        if (fd.children[0] && fd.children.length > 0) {
+        if (fd.children.length > 1) {
             console.log("Katyo")
             for (let i = 0; i < fd.children.length; i++) {
                 if (fd.children[i].id.includes(this.currentPlayerColor)) {
@@ -215,7 +224,8 @@ function Game() {
                 }
             }
         } else {
-            console.log("kattena");
+            console.log(fd.children.length)
+            console.log("kattena afu matra xa");
         }
     }
 }
