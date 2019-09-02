@@ -24,7 +24,11 @@ function Game() {
     ]
     this.rollBox = document.querySelector(".roll");
     this.makeRoll = async function () {
-        let rand = Math.ceil(Math.random() * 6)
+        let rand;
+        if (this.gottisOutside[this.playerIndex].length == 0) {
+            console.log("calling biased random")
+            rand = this.biasedRandom(6, 50)
+        } else rand = Math.ceil(Math.random() * 6)
         console.log(rand + "aayo hai")
         let gif = document.querySelector(".gif");
         console.log(gif)
@@ -32,6 +36,10 @@ function Game() {
         this.movementAmount = rand;
         await new Promise(r => setTimeout(r, 3000));
         this.gameController();
+    }
+
+    this.playerIndicator = function () {
+
     }
 
     this.moveGotti = async function (amount, id) {
@@ -98,6 +106,23 @@ function Game() {
             this.hasMoved = 1;
         } else {
             console.log("sala chor")
+        }
+    }
+
+    this.biasedRandom = (bias, degree) => {
+        if (bias.constructor == Number) {
+            temp = bias;
+            bias = []
+            bias.push(temp);
+        }
+        let rand = Math.random().toFixed(2);
+        console.log("degree of bias = " + rand)
+        if (rand > (degree / 100)) {
+            rand = Math.floor(Math.random() * bias.length);
+            return bias[rand];
+        } else {
+            rand = Math.ceil(Math.random() * 6);
+            return rand;
         }
     }
 
@@ -170,14 +195,14 @@ function Game() {
         }
         if (fd.children[0] && fd.children.length > 0) {
             console.log("Katyo")
-            for (let i = 0; i <= fd.children.length - 1; i++) {
+            for (let i = 0; i < fd.children.length; i++) {
                 if (fd.children[i].id.includes(this.currentPlayerColor)) {
                     console.log("katyo")
                     let killed = fd.children[i].id;
                     console.log(killed)
                     let col = killed.substr(0, killed.length - 1)
                     console.log("color = " + col)
-                    let spots = document.getElementsByClassName("gameOver_" + col);
+                    let spots = document.getElementsByClassName("home_" + col);
                     console.log(spots)
                     for (let i = 0; i < spots.length; i++) {
                         if (spots[i].children.length == 0) {
