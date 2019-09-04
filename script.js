@@ -122,7 +122,7 @@ function Game() {
                     i = finalPos;
                     let ind = this.gottisOutside[this.playerIndex].indexOf(id);
                     if (ind >= 0) this.gottisOutside[this.playerIndex].splice(ind, 1)
-                    let gameOver = document.querySelector(".gameOver");
+                    let gameOver = document.querySelector(".finished_" + this.currentPlayerColor);
                     g.classList.add("completed")
                     noPlayerChange = 1;
                     gameOver.appendChild(g);

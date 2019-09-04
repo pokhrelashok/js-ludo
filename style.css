@@ -28,12 +28,41 @@
     height: 20% !important;
 }
 
-#Canvas .gameOver {
+#Canvas .innerHome {
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
     position: relative;
     height: 20%;
     width: 20%;
     background-color: #ecf0f1;
+}
+
+.innerHome div {
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    width: 60%;
+    height: 20%;
+    margin: 0 auto;
+}
+
+.innerHome .mid {
+    display: flex;
+    flex-direction: row;
+    height: 60%;
+    width: 100%;
+}
+
+.innerHome .mid div {
+    height: 100%;
+    width: 20%;
+    flex-direction: column;
+
+}
+
+.innerHome .mid div:nth-child(2) {
+    width: 60%;
 }
 
 #Canvas .home {
