@@ -1,5 +1,5 @@
 function Game() {
-    this.playerIndex = 0;
+    this.playerIndex = -1;
     this.movementAmount = 0;
     this.gameEnded = 0
     this.sixCount = 0
@@ -8,6 +8,14 @@ function Game() {
     this.startGreen = 1
     this.startBlue = 27
     this.startYellow = 14
+    this.greenStop = 51;
+    this.yellowStop = 12;
+    this.blueStop = 25;
+    this.redStop = 38;
+    this.greenEntry = 100;
+    this.yellowEntry = 110;
+    this.blueEntry = 120;
+    this.redEntry = 130;
     //describes if a player has played his turn
     this.hasMoved = 1;
     //defines if the players will change
@@ -29,9 +37,9 @@ function Game() {
         let rand;
         if (this.gottisOutside[this.playerIndex].length == 0) {
             console.log("calling biased random")
-            rand = this.biasedRandom(6, 50)
+            rand = this.biasedRandom(6, 80)
         } else {
-            // rand = this.biasedRandom(6, 30)
+            // rand = this.biasedRandom(6, 100)
             rand = Math.ceil(Math.random() * 6)
         }
         console.log(rand + "aayo hai")
@@ -44,8 +52,8 @@ function Game() {
     }
 
 
-    this.playerIndicator = async function () {
-        if (this.sixCount != 1 && this.sixCount != 2) this.playerIndex = (this.playerIndex + 1) % 4;
+    this.playerIndicator = async function (noPlayerChange) {
+        if (this.sixCount != 1 && this.sixCount != 2 && !noPlayerChange) this.playerIndex = (this.playerIndex + 1) % 4;
         if (this.playerIndex == 0) {
             this.currentPlayerColor = "red";
         }
@@ -80,16 +88,117 @@ function Game() {
             let g = document.getElementById(id);
             let currPos = parseInt(g.parentNode.id);
             let finalPos = currPos + amount;
-            for (let i = currPos; i <= finalPos; i++) {
+            let fd = '';
+            let fdGottis;
+            let i = currPos;
+            //indicated noPlayerChange xa ki xaina
+            let noPlayerChange = 0;
+            while (i < finalPos) {
+                console.log("I = " + i)
+                console.log("final pos = " + finalPos)
                 await new Promise(r => setTimeout(r, 200))
-                let fd = document.getElementById(i);
-                console.log(fd)
-                fd.appendChild(g);
+                fd = document.getElementById(i);
+                //if two gottis incountered in the way
+                //checks the current position for multiple childrens
+                if (fd) {
+                    fdGottis = fd.getElementsByClassName("Gotti");
+                    if (fdGottis.length < 2) {
+                        fd.classList.remove("twoGotti")
+                    } else if (fdGottis.length >= 2) {
+                        fd.classList.remove("multipleGotti");
+                    }
+                }
+
+
+                //moving to next position
+                i++;
+                if (i == 53) {
+                    console.log("Changing value of final position")
+                    i = i % 52;
+                    finalPos = finalPos % 52;
+                }
+                if (i == 105 || i == 115 || i == 125 || i == 135) {
+                    console.log("home");
+                    i = finalPos;
+                    let ind = this.gottisOutside[this.playerIndex].indexOf(id);
+                    if (ind >= 0) this.gottisOutside[this.playerIndex].splice(ind, 1)
+                    let gameOver = document.querySelector(".gameOver");
+                    g.classList.add("completed")
+                    noPlayerChange = 1;
+                    gameOver.appendChild(g);
+                } else {
+                    fd = document.getElementById(i);
+                    if (fd) fdGottis = fd.getElementsByClassName("Gotti");
+
+                    //yedi final position ho vaney katdiney
+                    if (i == finalPos && fdGottis && fdGottis.length > 0) {
+                        console.log("lets check for cutting");
+                        for (let i = 0; i < fdGottis.length; i++) {
+                            if (!fdGottis[i].id.includes(this.currentPlayerColor)) {
+                                let killed = fdGottis[i].id;
+                                let col = killed.substr(0, killed.length - 1)
+                                let spots = document.getElementsByClassName("home_" + col);
+                                for (let j = 0; j < spots.length; j++) {
+                                    if (spots[j].children.length == 0) {
+                                        spots[j].appendChild(document.querySelector("#" + killed))
+                                    }
+                                }
+                                //noPlayerChange gotti lai gottisOutside ko array ma append garni
+                                let ind = -1;
+                                let killedPlayerIndex = -1;
+                                for (let j = 0; j < this.gottisOutside.length; j++) {
+                                    if (this.gottisOutside[j].indexOf(killed) != -1) {
+                                        ind = this.gottisOutside[j].indexOf(killed);
+                                        killedPlayerIndex = j;
+                                        break;
+                                    }
+                                }
+                                if (ind != -1) {
+                                    this.gottisOutside[killedPlayerIndex].splice(ind, 1)
+                                    this.gottisInside[killedPlayerIndex].push(killed)
+                                    console.log(this.gottisInside)
+                                    console.log(this.gottisOutside)
+                                }
+                                noPlayerChange = 1;
+                            } else {
+                                noPlayerChange = 0;
+                                console.log("same")
+                            }
+                        }
+                    } {
+                        noPlayerChange = 0;
+                    }
+                    fd.appendChild(g);
+                    console.log(fd)
+                    if (this.currentPlayerColor == "red" && i == this.redStop) {
+                        finalPos = this.redEntry + finalPos - i - 1;
+                        i = this.redEntry - 1;
+                    } else if (this.currentPlayerColor == "green" && i == this.greenStop) {
+                        finalPos = this.greenEntry + finalPos - i - 1;
+                        console.log("new final position" + finalPos)
+                        i = this.greenEntry - 1;
+                    } else if (this.currentPlayerColor == "blue" && i == this.blueStop) {
+                        finalPos = this.blueEntry + finalPos - i - 1;
+                        i = this.blueEntry - 1;
+                    } else if (this.currentPlayerColor == "yellow" && i == this.yellowStop) {
+                        finalPos = this.yellowEntry + finalPos - i - 1;
+                        i = this.yellowEntry - 1;
+                    }
+                    //adds the multiple gotti
+                    if (fdGottis.length == 2) {
+                        console.log("fd.children")
+                        console.log(fd.children)
+                        fd.classList.add("twoGotti")
+                    } else if (fdGottis.length > 2) {
+                        console.log("fd.children")
+                        console.log(fd.children)
+                        fd.classList.add("multipleGotti")
+                    }
+                }
             }
-            this.isSafe(finalPos, id);
             this.hasMoved = 1;
             //option deko khanda ma turn change garnu parxa so,
-            this.playerIndicator();
+            this.playerIndicator(noPlayerChange);
 
         } else {
             console.log("afno gotti move garna sala")
@@ -135,6 +244,14 @@ function Game() {
             fd = document.getElementById(position);
             g = document.getElementById(id);
             fd.appendChild(g);
+
+            //nikalda kheri position ma multiple gotti check
+            let fdLen = fd.getElementsByClassName("Gotti")
+            if (fdLen.length == 2) {
+                fd.classList.add("twoGotti")
+            } else if (fdLen.length > 2) {
+                fd.classList.add("multipleGotti")
+            }
             this.hasMoved = 1;
         } else {
             console.log("sala chor")
@@ -149,7 +266,7 @@ function Game() {
         }
         let rand = Math.random().toFixed(2);
         console.log("degree of bias = " + rand)
-        if (rand > (degree / 100)) {
+        if (rand < (degree / 100)) {
             rand = Math.floor(Math.random() * bias.length);
             return bias[rand];
         } else {
@@ -192,44 +309,6 @@ function Game() {
             this.hasMoved = 1;
             console.log("player changed")
             this.playerIndicator();
-        }
-    }
-
-    this.isSafe = function (position, id) {
-        let fd = document.getElementById(position);
-        console.log("katyo ki kattena?")
-        if (fd.children) console.log(fd.children)
-        else {
-            console.log("noone else hyere")
-        }
-        if (fd.children.length > 0) {
-            console.log("Katyo")
-            for (let i = 0; i < fd.children.length; i++) {
-                if (!fd.children[i].id.includes(this.currentPlayerColor)) {
-                    console.log("sachikai katyo k aaba chai")
-                    let killed = fd.children[i].id;
-                    console.log("killed" + killed)
-                    let col = killed.substr(0, killed.length - 1)
-                    console.log("color = " + col)
-                    let spots = document.getElementsByClassName("home_" + col);
-                    console.log(spots)
-                    for (let i = 0; i < spots.length; i++) {
-                        if (spots[i].children.length == 0) {
-                            console.log("khali xa")
-                            spots[i].appendChild(document.querySelector("#" + killed))
-                        }
-                    }
-                    //katteko gotti lai gottisOutside ko array ma append garni
-                    let ind = this.gottisOutside[this.playerIndex].indexOf(id);
-                    if (ind >= 0) this.gottisOutside[this.playerIndex].splice(ind, 1)
-                    this.gottisInside[this.playerIndex].push(id)
-                } else {
-                    console.log("same")
-                }
-            }
-        } else {
-            console.log(fd.children.length)
-            console.log("kattena afu matra xa");
         }
     }
 }
