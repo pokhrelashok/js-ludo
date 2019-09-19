@@ -482,4 +482,5 @@ playerSelectionDiv.addEventListener("click", e => {
 })
 
 //home to gotti lai blinkable banauni ki nabanauni decision linu jaroori
-//gif aaunu agadi nai click hudaixa
+//implement freeRoll
+//make overall ui better
