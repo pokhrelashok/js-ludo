@@ -1,5 +1,27 @@
+function createPowerup(type) {
+    this.type = type;
+    let desc = '';
+    if (type == "freeRoll") {
+        desc = "Gives you an extra free roll! Yeaaa";
+    }
+    let elem = document.createElement("div");
+    elem.className = "powerUp";
+    this.image = document.createElement("div");
+    this.image.classList.add(type)
+    this.description = document.createElement("p");
+    this.description.innerText = desc;
+    elem.appendChild(this.image);
+    elem.appendChild(this.description);
+    this.image = elem;
+}
+
+
+let powerUps = ['freeRoll'];
+
+
 function Game(totalPlayersCount) {
     this.playerIndex = -1;
+    this.clickAble = 0;
     this.movementAmount = 0;
     this.gameEnded = 0
     this.sixCount = 0
@@ -16,7 +38,8 @@ function Game(totalPlayersCount) {
     this.yellowEntry = 110;
     this.blueEntry = 120;
     this.totalPlayersCount = totalPlayersCount;
-    this.winners = []
+    this.winners = [];
+    this.powerUps = [];
     this.redEntry = 130;
     this.availablePlayers = [0, 1, 2, 3]
     //describes if a player has played his turn
@@ -64,12 +87,11 @@ function Game(totalPlayersCount) {
             console.log("calling biased random")
             rand = this.biasedRandom(6, 80)
         } else {
-            // rand = this.biasedRandom(6, 100)
-            rand = Math.ceil(Math.random() * 6)
+            rand = this.biasedRandom(6, 20)
+            // rand = Math.ceil(Math.random() * 6)
         }
         console.log(rand + "aayo hai")
         let gif = document.querySelector(".gif");
-        console.log(gif)
         gif.src = rand + ".gif";
         this.movementAmount = rand;
         await new Promise(r => setTimeout(r, 3000));
@@ -130,6 +152,7 @@ function Game(totalPlayersCount) {
                 let i = currPos;
                 //indicated noPlayerChange xa ki xaina
                 while (i < finalPos) {
+                    this.removeAnimation();
                     console.log("I = " + i)
                     console.log("final pos = " + finalPos)
                     await new Promise(r => setTimeout(r, 200))
@@ -144,7 +167,7 @@ function Game(totalPlayersCount) {
                             fd.classList.remove("twoGotti")
                             console.log("removing class two gotti")
                             console.log(fd)
-                        } else if (fdGottis.length > 2) {
+                        } else if (fdGottis.length == 3) {
                             fd.classList.remove("multipleGotti");
                         }
                     }
@@ -220,6 +243,15 @@ function Game(totalPlayersCount) {
                         }
                         fd.appendChild(g);
                         console.log(fd)
+
+
+                        //checking for powerup and adding powerup to the powerups
+                        if (i == finalPos && fd.querySelector(".powerUp")) {
+                            let p = fd.querySelector(".powerUp");
+                            document.querySelector(".box_" + this.currentPlayerColor + " .powerUps").appendChild(p);
+                        }
+
+
                         if (this.currentPlayerColor == "red" && i == this.redStop) {
                             finalPos = this.redEntry + finalPos - i - 1;
                             i = this.redEntry - 1;
@@ -264,14 +296,31 @@ function Game(totalPlayersCount) {
         }
     }
 
+    this.removeAnimation = function () {
+        //remove shake effect
+        console.log("gotti moved");
+        for (let i = 0; i < this.gottisOutside[this.playerIndex].length; i++) {
+            let gotti = document.querySelector("#" + this.gottisOutside[this.playerIndex][i]);
+            gotti.classList.remove("useMe")
+        }
+        for (let i = 0; i < this.gottisInside[this.playerIndex].length; i++) {
+            let gotti = document.querySelector("#" + this.gottisInside[this.playerIndex][i]);
+            gotti.classList.remove("useMe")
+        }
+    }
+
     document.addEventListener("click", (e) => {
         //for gotti
         if (e.target.className.includes("Gotti")) {
-            let gottiId = e.target.id;
-            if (this.movementAmount == 6 && e.target.parentNode.className.includes('home') && e.target.parentNode.className.includes(this.currentPlayerColor)) {
-                console.log("Nikaling gotti out")
-                this.getGottiOut(gottiId)
-            } else this.moveGotti(this.movementAmount, gottiId)
+            if (this.clickAble == 1) {
+                this.clickAble = 0;
+                let gottiId = e.target.id;
+                if (this.movementAmount == 6 && e.target.parentNode.className.includes('home') && e.target.parentNode.className.includes(this.currentPlayerColor)) {
+                    console.log("Nikaling gotti out")
+                    this.clickAble = 0;
+                    this.getGottiOut(gottiId)
+                } else this.moveGotti(this.movementAmount, gottiId)
+            }
         } else if (e.target.className == "gameOver" || e.target.className == "gif") {
             if (this.hasMoved) {
                 console.log("make a roll")
@@ -286,6 +335,7 @@ function Game(totalPlayersCount) {
     this.getGottiOut = function (id) {
         if (this.hasMoved == 0) {
             //niskeko gotti lai gottisOutside ko array ma append garni
+            this.removeAnimation();
             let ind = this.gottisInside[this.playerIndex].indexOf(id);
             if (ind >= 0) this.gottisInside[this.playerIndex].splice(ind, 1)
             this.gottisOutside[this.playerIndex].push(id)
@@ -303,7 +353,6 @@ function Game(totalPlayersCount) {
             fd = document.getElementById(position);
             g = document.getElementById(id);
             fd.appendChild(g);
-
             //nikalda kheri position ma multiple gotti check
             let fdLen = fd.getElementsByClassName("Gotti")
             if (fdLen.length == 2) {
@@ -344,7 +393,18 @@ function Game(totalPlayersCount) {
                     console.log(this.gottisOutside)
                     this.getGottiOut(this.gottisInside[this.playerIndex][0]);
                 } else {
+                    //shake all the gottis inside the home;
+                    this.clickAble = 1;
                     console.log("option");
+                    for (let i = 0; i < this.gottisOutside[this.playerIndex].length; i++) {
+                        let gotti = document.querySelector("#" + this.gottisOutside[this.playerIndex][i]);
+                        gotti.classList.add("useMe")
+                    }
+                    for (let i = 0; i < this.gottisInside[this.playerIndex].length; i++) {
+                        let gotti = document.querySelector("#" + this.gottisInside[this.playerIndex][i]);
+                        gotti.classList.add("useMe")
+                    }
+
                 }
             }
             //6 aayena vaney k garney
@@ -356,6 +416,13 @@ function Game(totalPlayersCount) {
                 } else if (this.gottisOutside[this.playerIndex].length == 1) {
                     console.log("yes automove")
                     this.moveGotti(this.movementAmount, this.gottisOutside[this.playerIndex][0]);
+                } else {
+                    this.clickAble = 1;
+                    console.log("option");
+                    for (let i = 0; i < this.gottisOutside[this.playerIndex].length; i++) {
+                        let gotti = document.querySelector("#" + this.gottisOutside[this.playerIndex][i]);
+                        gotti.classList.add("useMe")
+                    }
                 }
             }
         } else {
@@ -393,8 +460,26 @@ playerSelectionDiv.addEventListener("click", e => {
             totalPlayersCount = 4;
         }
         let g = new Game(totalPlayersCount);
+        //placing powerups in the board
+        let places = [];
+        for (i = 0; i < 6; i++) {
+            let loc = Math.ceil(Math.random() * 52);
+            if (!places.includes(loc) && loc != 40 && loc != 1 && loc != 48 && loc != 14 && loc != 9 && loc != 22 && loc != 27 && loc != 35) {
+                let location = document.getElementById(loc);
+                let powerup = Math.floor(Math.random() * powerUps.length);
+                powerup = powerUps[powerup];
+                powerup = new createPowerup(powerup);
+                g.powerUps.push(powerup);
+                location.appendChild(powerup.image)
+                places.push(loc)
+            }
+        }
+        console.log(g.powerUps);
         playerSelectionDiv.classList.add("hidden");
         document.querySelector("#Canvas").classList.remove("hidden");
         g.startGame();
     }
 })
+
+//home to gotti lai blinkable banauni ki nabanauni decision linu jaroori
+//gif aaunu agadi nai click hudaixa
