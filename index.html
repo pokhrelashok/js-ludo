@@ -17,10 +17,11 @@
             <button id='4players'>4 players</button>
         </div>
     </div>
-    <div id="engGameDialogue" class="hidden">
+    <div id="endGameDialogue" class="hidden">
         <div>
             <h2>The game is over!</h2>
             <h2>The results are here</h2>
+            <button id='playAgain'>Play Again?</button>
         </div>
     </div>
     <div id="Canvas" class="hidden">
@@ -30,16 +31,16 @@
                 <div class="powerUps">
                 </div>
                 <div class="home_red inner_space">
-                    <img src="red.png" class="Gotti" id="red1">
+                    <!-- <img src="red.png" class="Gotti" id="red1"> -->
                 </div>
                 <div class="home_red inner_space">
-                    <img src="red.png" class="Gotti" id="red2">
+                    <!-- <img src="red.png" class="Gotti" id="red2"> -->
                 </div>
                 <div class="home_red inner_space">
-                    <img src="red.png" class="Gotti" id="red3">
+                    <!-- <img src="red.png" class="Gotti" id="red3"> -->
                 </div>
                 <div class="home_red inner_space">
-                    <img src="red.png" class="Gotti" id="red4">
+                    <!-- <img src="red.png" class="Gotti" id="red4"> -->
                 </div>
             </div>
         </section>
@@ -51,21 +52,22 @@
             </article>
             <article>
                 <div class="vertical_green" id="49"></div>
-                <div class="vertical_green green" id="100"></div>
-                <div class="vertical_green green" id="1">
+                <div class="vertical_green finalPath" id="100"></div>
+                <div class="vertical_green finalPath hasStar" id="1">
                     <img class='star' src="star.png">
                 </div>
             </article>
             <article>
-                <div class="vertical_green green" id="48">
+                <div class="vertical_green finalPath hasStar" id="48">
                     <img class='star' src="star.png">
                 </div>
-                <div class="vertical_green green" id="101"></div>
-                <div class="vertical_green" id="2"></div>
+                <div class="vertical_green finalPath " id="101"></div>
+                <div class="vertical_green" id="2">
+                </div>
             </article>
             <article>
                 <div class="vertical_green" id="47"></div>
-                <div class="vertical_green green" id="102">
+                <div class="vertical_green finalPath" id="102">
                 </div>
                 <div class="vertical_green" id="3"></div>
             </article>
@@ -74,13 +76,13 @@
                     <div class="powerUps">
                     </div>
                 </div>
-                <div class="vertical_green green" id="103"></div>
+                <div class="vertical_green finalPath" id="103"></div>
                 <div class="vertical_green" id="4"></div>
             </article>
             <article>
                 <div class="vertical_green" id="45"></div>
-                <div class="vertical_green green" id="104"></div>
-                <div class="vertical_green" id="5"></div>
+                <div class="vertical_green finalPath" id="104"></div>
+                <div class="vertical_green" id="5"> </div>
             </article>
         </section>
         <section class="box box_green">
@@ -88,16 +90,12 @@
                 <div class="profilePic"></div>
                 <div class="powerUps"></div>
                 <div class="home_green inner_space">
-                    <img src="green.png" class="Gotti" id="green1">
                 </div>
                 <div class="home_green inner_space">
-                    <img src="green.png" class="Gotti" id="green2">
                 </div>
                 <div class="home_green inner_space">
-                    <img src="green.png" class="Gotti" id="green3">
                 </div>
                 <div class="home_green inner_space">
-                    <img src="green.png" class="Gotti" id="green4">
                 </div>
             </div>
         </section>
@@ -108,35 +106,38 @@
                 <div class="horizontal_red" id="37"></div>
             </article>
             <article>
-                <div class="horizontal_red red" id="40">
+                <div class="horizontal_red finalPath hasStar" id="40">
                     <img class='star' src="star.png">
                 </div>
-                <div class="horizontal_red red" id="130"></div>
+                <div class="horizontal_red finalPath" id="130">
+                </div>
                 <div class="horizontal_red " id="36">
                 </div>
             </article>
             <article>
                 <div class="horizontal_red" id="41">
                 </div>
-                <div class="horizontal_red red" id="131"></div>
-                <div class="horizontal_red red" id="35">
+                <div class="horizontal_red finalPath" id="131">
+                </div>
+                <div class="horizontal_red finalPath hasStar" id="35">
                     <img class='star' src="star.png">
                 </div>
             </article>
             <article>
                 <div class="horizontal_red" id="42"></div>
-                <div class="horizontal_red red" id="132">
+                <div class="horizontal_red finalPath" id="132">
                 </div>
                 <div class="horizontal_red" id="34"></div>
             </article>
             <article>
                 <div class="horizontal_red" id="43"></div>
-                <div class="horizontal_red red" id="133"></div>
+                <div class="horizontal_red finalPath" id="133">
+                </div>
                 <div class="horizontal_red" id="33"></div>
             </article>
             <article>
                 <div class="horizontal_red" id="44"></div>
-                <div class="horizontal_red red" id="134">
+                <div class="horizontal_red finalPath" id="134">
                 </div>
                 <div class="horizontal_red" id="32"></div>
             </article>
@@ -160,32 +161,32 @@
             <article>
                 <div class="horizontal_yellow" id="6">
                 </div>
-                <div class="horizontal_yellow yellow" id="114"></div>
+                <div class="horizontal_yellow finalPath" id="114"></div>
                 <div class="horizontal_yellow" id="18"></div>
             </article>
             <article>
                 <div class="horizontal_yellow" id="7">
                 </div>
-                <div class="horizontal_yellow yellow" id="113"></div>
+                <div class="horizontal_yellow finalPath" id="113"></div>
                 <div class="horizontal_yellow" id="17"></div>
             </article>
             <article>
                 <div class="horizontal_yellow" id="8"></div>
-                <div class="horizontal_yellow yellow" id="112"></div>
+                <div class="horizontal_yellow finalPath" id="112"></div>
                 <div class="horizontal_yellow" id="16"></div>
             </article>
             <article>
-                <div class="horizontal_yellow yellow" id="9">
+                <div class="horizontal_yellow finalPath hasStar" id="9">
                     <img class='star' src="star.png">
                 </div>
-                <div class="horizontal_yellow yellow" id="111"></div>
+                <div class="horizontal_yellow finalPath" id="111"></div>
                 <div class="horizontal_yellow" id="15"></div>
             </article>
             <article>
                 <div class="horizontal_yellow" id="10">
                 </div>
-                <div class="horizontal_yellow yellow" id="110"></div>
-                <div class="horizontal_yellow yellow" id="14">
+                <div class="horizontal_yellow finalPath" id="110"></div>
+                <div class="horizontal_yellow finalPath hasStar" id="14">
                     <img class='star' src="star.png">
                 </div>
             </article>
@@ -201,47 +202,43 @@
                 <div class="powerUps">
                 </div>
                 <div class="home_blue inner_space">
-                    <img src="blue.png" class="Gotti" id="blue1">
                 </div>
                 <div class="home_blue inner_space">
-                    <img src="blue.png" class="Gotti" id="blue2">
                 </div>
                 <div class="home_blue inner_space">
-                    <img src="blue.png" class="Gotti" id="blue3">
                 </div>
                 <div class="home_blue inner_space">
-                    <img src="blue.png" class="Gotti" id="blue4">
                 </div>
             </div>
         </section>
         <section class="path vertical">
             <article>
                 <div class="vertical_blue" id="31"></div>
-                <div class="vertical_blue blue" id="124"></div>
+                <div class="vertical_blue finalPath" id="124"></div>
                 <div class="vertical_blue" id="19"></div>
             </article>
             <article>
                 <div class="vertical_blue" id="30"></div>
-                <div class="vertical_blue blue" id="123"></div>
+                <div class="vertical_blue finalPath" id="123"></div>
                 <div class="vertical_blue" id="20"></div>
             </article>
             <article>
                 <div class="vertical_blue" id="29"></div>
-                <div class="vertical_blue blue" id="122"></div>
+                <div class="vertical_blue finalPath" id="122"></div>
                 <div class="vertical_blue" id="21"></div>
             </article>
             <article>
                 <div class="vertical_blue" id="28"></div>
-                <div class="vertical_blue blue" id="121"></div>
-                <div class="vertical_blue blue" id="22">
+                <div class="vertical_blue finalPath" id="121"></div>
+                <div class="vertical_blue finalPath hasStar" id="22">
                     <img class='star' src="star.png">
                 </div>
             </article>
             <article>
-                <div class="vertical_blue blue" id="27">
+                <div class="vertical_blue finalPath hasStar" id="27">
                     <img class='star' src="star.png">
                 </div>
-                <div class="vertical_blue blue" id="120"></div>
+                <div class="vertical_blue finalPath" id="120"></div>
                 <div class="vertical_blue " id="23"></div>
             </article>
             <article>
@@ -255,16 +252,12 @@
                 <div class="profilePic"></div>
                 <div class="powerUps"></div>
                 <div class="home_yellow inner_space">
-                    <img src="yellow.png" class="Gotti" id="yellow1">
                 </div>
                 <div class="home_yellow inner_space">
-                    <img src="yellow.png" class="Gotti" id="yellow2">
                 </div>
                 <div class="home_yellow inner_space">
-                    <img src="yellow.png" class="Gotti" id="yellow3">
                 </div>
                 <div class="home_yellow inner_space">
-                    <img src="yellow.png" class="Gotti" id="yellow4">
                 </div>
             </div>
         </section>

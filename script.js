@@ -20,7 +20,7 @@ let powerUps = ['freeRoll'];
 
 
 function Game(totalPlayersCount) {
-    this.playerIndex = -1;
+    this.playerIndex = 0;
     this.clickAble = 0;
     this.movementAmount = 0;
     this.gameEnded = 0
@@ -41,6 +41,7 @@ function Game(totalPlayersCount) {
     this.winners = [];
     this.powerUps = [];
     this.redEntry = 130;
+    this.movableGottis = [];
     this.availablePlayers = [0, 1, 2, 3]
     //describes if a player has played his turn
     this.hasMoved = 1;
@@ -62,54 +63,68 @@ function Game(totalPlayersCount) {
     this.startGame = function () {
         if (this.totalPlayersCount == 2) {
             this.availablePlayers = [0, 2];
-            let gottisToHide = document.querySelectorAll(".box_green .Gotti");
-            gottisToHide.forEach(element => {
-                element.classList.add("hidden")
-            });
-            gottisToHide = document.querySelectorAll(".box_blue .Gotti");
-            gottisToHide.forEach(element => {
-                element.classList.add("hidden")
-            });
-
         } else if (this.totalPlayersCount == 3) {
-            let gottisToHide = document.querySelectorAll(".box_green .Gotti");
-            console.log(gottisToHide)
-            gottisToHide.forEach(element => {
-                element.classList.add("hidden")
-            });
             this.availablePlayers = [0, 2, 3];
+        }
+        for (let i = 0; i <= this.availablePlayers.length; i++) {
+            if (this.availablePlayers.includes(i)) {
+                for (let j = 0; j < 4; j++) {
+                    let gotti = document.createElement("img");
+                    gotti.classList.add("Gotti");
+                    gotti.id = this.gottisInside[i][j];
+                    let col = gotti.id.slice(0, gotti.id.length - 1)
+                    gotti.src = col + ".png";
+                    let pnt = document.querySelectorAll(".home_" + col + ".inner_space");
+                    pnt[j].appendChild(gotti);
+                }
+            }
         }
         this.playerIndicator();
     }
     this.makeRoll = async function () {
-        let rand;
+        this.hasMoved = 0;
         if (this.gottisOutside[this.playerIndex].length == 0) {
             console.log("calling biased random")
-            rand = this.biasedRandom(6, 80)
+            this.movementAmount = this.biasedRandom(6, 75)
         } else {
-            rand = this.biasedRandom(6, 20)
-            // rand = Math.ceil(Math.random() * 6)
+            //sees if there is any players ahead and tries to cut it
+            let biases = [];
+            for (let i = 0; i < this.gottisOutside[this.playerIndex].length; i++) {
+                let pos = parseInt(parseInt(document.getElementById(this.gottisOutside[this.playerIndex][i]).parentNode.id));
+                if (pos < 100) {
+                    for (let j = 1; j <= 6; j++) {
+                        let k = pos + j;
+                        if (k > 52) k = k % 52;
+                        let tempPosition = document.getElementById(k);
+                        let opps = tempPosition.querySelector(".Gotti");
+                        if (opps) {
+                            if (!opps.id.includes(this.currentPlayerColor)) {
+                                biases.push(j);
+                            }
+                        }
+                    }
+                }
+            }
+            //cuts players with 30% chance
+            if (biases.length > 0) this.movementAmount = this.biasedRandom(biases, 30)
+            else this.movementAmount = this.biasedRandom(6, 80)
         }
-        console.log(rand + "aayo hai")
         let gif = document.querySelector(".gif");
-        gif.src = rand + ".gif";
-        this.movementAmount = rand;
+        gif.src = this.movementAmount + ".gif";
+        //waits untile the gif rolls
         await new Promise(r => setTimeout(r, 3000));
         this.gameController();
     }
 
 
-
     this.playerIndicator = async function (noPlayerChange) {
-        console.log(noPlayerChange)
         if (!noPlayerChange) noPlayerChange = 0;
-        console.log("noPlayerChange" + noPlayerChange)
         if (this.sixCount != 1 && this.sixCount != 2 && noPlayerChange == 0) {
             this.playerIndex = (this.playerIndex + 1) % 4;
             while (!this.availablePlayers.includes(this.playerIndex)) {
                 this.playerIndex = (this.playerIndex + 1) % 4;
-                console.log(this.playerIndex)
             }
+            this.clickAble = 1;
         }
         if (this.playerIndex == 0) {
             this.currentPlayerColor = "red";
@@ -129,129 +144,75 @@ function Game(totalPlayersCount) {
         for (let i = 0; i < all.length; i++) {
             if (all[i].className.includes("highLight")) {
                 all[i].classList.remove("highLight");
-                console.log("removed highlight")
                 break;
             }
         }
         let home = document.querySelector("." + this.currentPlayerColor + ".home .profilePic");
-        home.classList.add('highLight')
+        home.classList.add('highLight');
     }
 
-    this.moveGotti = async function (amount, id) {
-        if (id.includes(this.currentPlayerColor) && this.hasMoved == 0) {
+    //does all the processing required to move a gotti and check if anything can be cut
+    this.moveGotti = async function (id) {
+        if (this.hasMoved == 0) {
+            this.clickAble = 0;
             let g = document.getElementById(id);
-            let currPos = parseInt(g.parentNode.id);
-            let finalPos = currPos + amount;
-
-            //for gottis inside home
-            let noPlayerChange = 0;
-            if ((currPos >= 100 && finalPos < 106) || (currPos >= 110 && finalPos < 116) || (currPos >= 120 && finalPos < 126 || (currPos >= 130 && finalPos < 136)) || currPos < 100) {
-                console.log("homeable")
+            if (g.parentNode.className.includes("inner_space")) {
+                this.getGottiOut(id)
+            } else {
+                let currPos = parseInt(g.parentNode.id);
+                let finalPos = currPos + this.movementAmount;
+                //for gottis inside home
                 let fd = '';
                 let fdGottis;
                 let i = currPos;
-                //indicated noPlayerChange xa ki xaina
                 while (i < finalPos) {
-                    this.removeAnimation();
-                    console.log("I = " + i)
-                    console.log("final pos = " + finalPos)
-                    await new Promise(r => setTimeout(r, 200))
+                    this.removeShakeAnimation();
                     fd = document.getElementById(i);
-                    //if two gottis incountered in the way
-                    //checks the current position for multiple childrens
+                    //if two gottis incountered in the way removes the classes that makes them smaller
                     if (fd) {
                         fdGottis = fd.getElementsByClassName("Gotti");
-                        console.log("no of gottis")
-                        console.log(fdGottis)
                         if (fdGottis.length <= 2) {
                             fd.classList.remove("twoGotti")
-                            console.log("removing class two gotti")
-                            console.log(fd)
                         } else if (fdGottis.length == 3) {
                             fd.classList.remove("multipleGotti");
                         }
                     }
 
-
                     //moving to next position
                     i++;
                     if (i == 53) {
-                        console.log("Changing value of final position")
                         i = i % 52;
                         finalPos = finalPos % 52;
                     }
+                    //if the gotti has reached the finish line
                     if (i == 105 || i == 115 || i == 125 || i == 135) {
-                        console.log("home");
                         i = finalPos;
                         let ind = this.gottisOutside[this.playerIndex].indexOf(id);
                         if (ind >= 0) this.gottisOutside[this.playerIndex].splice(ind, 1)
                         let gameOver = document.querySelector(".finished_" + this.currentPlayerColor);
                         //total game completed
                         if (this.gottisOutside[this.playerIndex].length == 0 && this.gottisInside[this.playerIndex].length == 0) {
-                            console.log("you game is done mister");
                             let ind = this.availablePlayers.indexOf(this.playerIndex)
                             this.availablePlayers.splice(ind, 1);
                             this.winners.push(this.currentPlayerColor);
+
                             if (this.availablePlayers.length == 1) {
-                                console.log("this game is done");
+                                this.playerIndicator();
+                                this.winners.push(this.currentPlayerColor);
                                 this.gameOver();
                             }
                         } else {
-                            noPlayerChange = 1;
+                            this.noPlayerChange = 1;
                         }
                         gameOver.appendChild(g);
                     } else {
                         fd = document.getElementById(i);
-                        if (fd) fdGottis = fd.getElementsByClassName("Gotti");
-
-                        //yedi final position ho vaney katdiney
-                        if (i == finalPos && fdGottis && fdGottis.length > 0) {
-                            console.log("lets check for cutting");
-                            for (let i = 0; i < fdGottis.length; i++) {
-                                if (!fdGottis[i].id.includes(this.currentPlayerColor)) {
-                                    let killed = fdGottis[i].id;
-                                    let col = killed.substr(0, killed.length - 1)
-                                    let spots = document.getElementsByClassName("home_" + col);
-                                    for (let j = 0; j < spots.length; j++) {
-                                        if (spots[j].children.length == 0) {
-                                            spots[j].appendChild(document.querySelector("#" + killed))
-                                        }
-                                    }
-                                    //noPlayerChange gotti lai gottisOutside ko array ma append garni
-                                    let ind = -1;
-                                    let killedPlayerIndex = -1;
-                                    for (let j = 0; j < this.gottisOutside.length; j++) {
-                                        if (this.gottisOutside[j].indexOf(killed) != -1) {
-                                            ind = this.gottisOutside[j].indexOf(killed);
-                                            killedPlayerIndex = j;
-                                            break;
-                                        }
-                                    }
-                                    if (ind != -1) {
-                                        this.gottisOutside[killedPlayerIndex].splice(ind, 1)
-                                        this.gottisInside[killedPlayerIndex].push(killed)
-                                        console.log(this.gottisInside)
-                                        console.log(this.gottisOutside)
-                                    }
-                                    noPlayerChange = 1;
-                                    console.log("player change nagar hai")
-                                } else {
-                                    noPlayerChange = 0;
-                                    console.log("same")
-                                }
-                            }
-                        }
+                        //checks the position for any opponents or powerups
+                        if (i == finalPos) this.checkFinalPosition(fd);
+                        await new Promise(r => setTimeout(r, 200))
                         fd.appendChild(g);
-                        console.log(fd)
 
-
-                        //checking for powerup and adding powerup to the powerups
-                        if (i == finalPos && fd.querySelector(".powerUp")) {
-                            let p = fd.querySelector(".powerUp");
-                            document.querySelector(".box_" + this.currentPlayerColor + " .powerUps").appendChild(p);
-                        }
-
-
+                        //checks if they are at the stop positions
                         if (this.currentPlayerColor == "red" && i == this.redStop) {
                             finalPos = this.redEntry + finalPos - i - 1;
                             i = this.redEntry - 1;
@@ -266,39 +227,67 @@ function Game(totalPlayersCount) {
                             finalPos = this.yellowEntry + finalPos - i - 1;
                             i = this.yellowEntry - 1;
                         }
-                        //adds the multiple gotti
-                        if (fdGottis.length == 2) {
-                            console.log("fd.children")
-                            console.log(fd.children)
-                            fd.classList.add("twoGotti")
-                        } else if (fdGottis.length > 2) {
-                            console.log("fd.children")
-                            console.log(fd.children)
-                            fd.classList.add("multipleGotti")
-                        }
+                        //adds the classes to make the gotti smaller when there are multiple gottis
+                        if (fdGottis.length == 2) fd.classList.add("twoGotti")
+                        else if (fdGottis.length > 2) fd.classList.add("multipleGotti")
                     }
                 }
-                this.hasMoved = 1;
-                //option deko khanda ma turn change garnu parxa so,
-                this.playerIndicator(noPlayerChange);
-            } else {
-                console.log("cant pick this one");
-                if (this.gottisOutside[this.playerIndex].length == 1) {
-                    //bichara ko euta matra gotti raxa
-                    this.sixCount = 0;
-                    this.hasMoved = 1;
-                    this.playerIndicator(noPlayerChange);
-                }
             }
-
-        } else {
-            console.log("afno gotti move garna sala")
+            this.hasMoved = 1;
         }
     }
 
-    this.removeAnimation = function () {
+
+    this.checkFinalPosition = (fd) => {
+        //checks for opponents in the final position
+        let fdGottis = [];
+        if (!fd.className.includes("hasStar")) {
+            fdGottis = fd.getElementsByClassName("Gotti");
+            if (fdGottis.length > 0) {
+                for (let i = 0; i < fdGottis.length; i++) {
+                    if (!fdGottis[i].id.includes(this.currentPlayerColor)) {
+                        let killed = fdGottis[i].id;
+                        let col = killed.substr(0, killed.length - 1)
+                        let spots = document.getElementsByClassName("home_" + col);
+                        for (let j = 0; j < spots.length; j++) {
+                            if (spots[j].children.length == 0) {
+                                spots[j].appendChild(document.querySelector("#" + killed))
+                            }
+                        }
+                        //noPlayerChange gotti lai gottisOutside ko array ma append garni
+                        let ind = -1;
+                        let killedPlayerIndex = -1;
+                        for (let j = 0; j < this.gottisOutside.length; j++) {
+                            if (this.gottisOutside[j].indexOf(killed) != -1) {
+                                ind = this.gottisOutside[j].indexOf(killed);
+                                killedPlayerIndex = j;
+                                break;
+                            }
+                        }
+                        if (ind != -1) {
+                            this.gottisOutside[killedPlayerIndex].splice(ind, 1)
+                            this.gottisInside[killedPlayerIndex].push(killed)
+                            console.log(this.gottisInside)
+                            console.log(this.gottisOutside)
+                        }
+                        noPlayerChange = 1;
+                        console.log("player change nagar hai")
+                    } else {
+                        noPlayerChange = 0;
+                        console.log("same")
+                    }
+                }
+            }
+            //checks for powerUps in the final position
+        }
+        fdGottis = fd.getElementsByClassName("powerUp");
+        if (fdGottis.length > 0) {
+            document.querySelector(".box_" + this.currentPlayerColor + " .powerUps").appendChild(fdGottis[0]);
+        }
+    }
+
+    this.removeShakeAnimation = function () {
         //remove shake effect
-        console.log("gotti moved");
         for (let i = 0; i < this.gottisOutside[this.playerIndex].length; i++) {
             let gotti = document.querySelector("#" + this.gottisOutside[this.playerIndex][i]);
             gotti.classList.remove("useMe")
@@ -309,33 +298,25 @@ function Game(totalPlayersCount) {
         }
     }
 
-    document.addEventListener("click", (e) => {
-        //for gotti
-        if (e.target.className.includes("Gotti")) {
-            if (this.clickAble == 1) {
-                this.clickAble = 0;
-                let gottiId = e.target.id;
-                if (this.movementAmount == 6 && e.target.parentNode.className.includes('home') && e.target.parentNode.className.includes(this.currentPlayerColor)) {
-                    console.log("Nikaling gotti out")
-                    this.clickAble = 0;
-                    this.getGottiOut(gottiId)
-                } else this.moveGotti(this.movementAmount, gottiId)
-            }
-        } else if (e.target.className == "gameOver" || e.target.className == "gif") {
-            if (this.hasMoved) {
-                console.log("make a roll")
-                this.makeRoll();
-                this.hasMoved = 0;
-            } else {
-                console.log("arkako palo michxas")
-            }
-        }
-    })
+    document.addEventListener("click", async (e) => {
+        //if a gotti has been clicked
+        let gottiId = e.target.id;
+        console.log(this.movableGottis.includes(gottiId))
+        console.log(this.clickAble === 1)
+        if (this.movableGottis.includes(gottiId) && this.clickAble === 1) {
+            console.log("move your ass gotti")
+            await this.moveGotti(gottiId)
+        } else if ((e.target.className == "gameOver" || e.target.className == "gif") && this.hasMoved == 1) {
+            this.hasMoved = 0;
+            this.movableGottis = [];
+            this.makeRoll();
+        } else console.log("has moved")
+    });
 
     this.getGottiOut = function (id) {
         if (this.hasMoved == 0) {
             //niskeko gotti lai gottisOutside ko array ma append garni
-            this.removeAnimation();
+            this.removeShakeAnimation();
             let ind = this.gottisInside[this.playerIndex].indexOf(id);
             if (ind >= 0) this.gottisInside[this.playerIndex].splice(ind, 1)
             this.gottisOutside[this.playerIndex].push(id)
@@ -360,17 +341,17 @@ function Game(totalPlayersCount) {
             } else if (fdLen.length > 2) {
                 fd.classList.add("multipleGotti")
             }
-            this.hasMoved = 1;
-        } else {
-            console.log("sala chor")
         }
     }
 
-    this.biasedRandom = (...args) => {
-        let degree = args.pop();
-        let bias = args;
+    //calculates biased random using the array and the probability sent
+    this.biasedRandom = (bias, degree) => {
+        if (!Array.isArray(bias)) {
+            let temp = bias;
+            bias = []
+            bias.push(temp);
+        }
         let rand = Math.random().toFixed(2);
-        console.log("degree of bias = " + rand)
         if (rand < (degree / 100)) {
             rand = Math.floor(Math.random() * bias.length);
             return bias[rand];
@@ -380,59 +361,69 @@ function Game(totalPlayersCount) {
         }
     }
 
+    //finds gottis that can be moved in each steps adds shake to gottis that can be moved
+    this.findMovableGotti = function () {
+        if (this.movementAmount == 6) {
+            for (let i = 0; i < this.gottisInside[this.playerIndex].length; i++) {
+                this.movableGottis.push(this.gottisInside[this.playerIndex][i])
+                let gotti = document.querySelector("#" + this.gottisInside[this.playerIndex][i]);
+                gotti.classList.add("useMe")
+            }
+        }
+        //checks for the home gottis
+        for (let i = 0; i < this.gottisOutside[this.playerIndex].length; i++) {
+            if (this.isOnFinishLine(this.gottisOutside[this.playerIndex][i])) {
+                this.movableGottis.push(this.gottisOutside[this.playerIndex][i])
+                let gotti = document.querySelector("#" + this.gottisOutside[this.playerIndex][i]);
+                gotti.classList.add("useMe")
+            }
+        }
+        console.log(this.movableGottis);
+    }
+
     this.gameController = async function () {
+        this.hasMoved = 0;
         if (this.movementAmount != 6) {
             this.sixCount = 0;
         } else {
             this.sixCount++;
         }
         if (this.sixCount != 3) {
-            //6 aayo vane kk garney
-            if (this.movementAmount == 6) {
-                if (this.gottisOutside[this.playerIndex].length == 0) {
-                    console.log(this.gottisOutside)
-                    this.getGottiOut(this.gottisInside[this.playerIndex][0]);
-                } else {
-                    //shake all the gottis inside the home;
+            //j aayepani shake animation halney code same nai hunxa
+            this.findMovableGotti();
+            this.noPlayerChange = 0;
+            console.log("Movable length" + this.movableGottis.length)
+            if (this.movableGottis.length == 0) {
+                this.sixCount = 0;
+                this.hasMoved = 1;
+            } else if (this.movableGottis.length == 1) {
+                await this.moveGotti(this.movableGottis[0]);
+            } else {
+                if (this.gottisOutside[this.playerIndex].length == 0) await this.moveGotti(this.movableGottis[0]);
+                else {
                     this.clickAble = 1;
-                    console.log("option");
-                    for (let i = 0; i < this.gottisOutside[this.playerIndex].length; i++) {
-                        let gotti = document.querySelector("#" + this.gottisOutside[this.playerIndex][i]);
-                        gotti.classList.add("useMe")
-                    }
-                    for (let i = 0; i < this.gottisInside[this.playerIndex].length; i++) {
-                        let gotti = document.querySelector("#" + this.gottisInside[this.playerIndex][i]);
-                        gotti.classList.add("useMe")
-                    }
-
                 }
             }
-            //6 aayena vaney k garney
-            else {
-                if (this.gottisOutside[this.playerIndex].length == 0) {
-                    //eutai gotti bahira xaina vane skip gar
-                    this.hasMoved = 1;
-                    this.playerIndicator();
-                } else if (this.gottisOutside[this.playerIndex].length == 1) {
-                    console.log("yes automove")
-                    this.moveGotti(this.movementAmount, this.gottisOutside[this.playerIndex][0]);
-                } else {
-                    this.clickAble = 1;
-                    console.log("option");
-                    for (let i = 0; i < this.gottisOutside[this.playerIndex].length; i++) {
-                        let gotti = document.querySelector("#" + this.gottisOutside[this.playerIndex][i]);
-                        gotti.classList.add("useMe")
-                    }
-                }
-            }
+            this.playerIndicator(this.noPlayerChange);
         } else {
-            console.log("3 ta xaxkka")
             this.sixCount = 0;
-            this.movementAmount = 0;
             this.hasMoved = 1;
-            console.log("player changed")
             this.playerIndicator();
         }
+    }
+
+
+    //returns 1 if the gotti can move inside the finish line, 2 if the gotti aint in finish line and 0 if its in the finish line but cant make it
+    this.isOnFinishLine = function (id) {
+        let gotti = document.querySelector("#" + id);
+        let currPos = parseInt(gotti.parentNode.id);
+        if (currPos > 100) {
+            if ((currPos >= 100 && currPos + this.movementAmount < 106) || (currPos >= 110 && currPos + this.movementAmount < 116) || (currPos >= 120 && currPos + this.movementAmount < 126 || (currPos >= 130 && currPos + this.movementAmount < 136)) || currPos < 100) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } else return 2;
     }
 
     this.gameOver = function () {
@@ -447,7 +438,11 @@ function Game(totalPlayersCount) {
     }
 }
 
-let playerSelectionDiv = document.querySelector("#startGameDialogue")
+let playerSelectionDiv = document.querySelector("#startGameDialogue");
+document.querySelector("#playAgain").addEventListener("click", e => {
+    document.querySelector("#endGameDialogue").classList.add("hidden");
+    playerSelectionDiv.classList.remove("hidden");
+})
 playerSelectionDiv.addEventListener("click", e => {
     let totalPlayersCount = 4;
     if (e.target.id.includes("players")) {
@@ -459,7 +454,8 @@ playerSelectionDiv.addEventListener("click", e => {
         } else if ((e.target.id == '4players')) {
             totalPlayersCount = 4;
         }
-        let g = new Game(totalPlayersCount);
+        let g = {};
+        g = new Game(totalPlayersCount);
         //placing powerups in the board
         let places = [];
         for (i = 0; i < 6; i++) {
@@ -481,6 +477,8 @@ playerSelectionDiv.addEventListener("click", e => {
     }
 })
 
-//home to gotti lai blinkable banauni ki nabanauni decision linu jaroori
+//same thaum ma jump gardaixa ani ek step agadi nai khadaixa
+//automove one gotti if two gotti are in the same position
 //implement freeRoll
 //make overall ui better
+//implement finishing line ko gotti lai home huna dine ai

@@ -18,7 +18,7 @@ body {
 }
 
 #startGameDialogue,
-#engGameDialogue {
+#endGameDialogue {
     animation: bounceIn 0.8s ease-in-out;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.1);
     text-align: center;
@@ -33,7 +33,7 @@ body {
 }
 
 #startGameDialogue button,
-#engGameDialogue button {
+#endGameDialogue button {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.03);
     font-size: 18px;
     cursor: pointer;
@@ -50,7 +50,7 @@ body {
 }
 
 #startGameDialogue button:hover,
-#engGameDialogue button:hover {
+#endGameDialogue button:hover {
     animation: 1s rubberBand ease;
     color: #ecf0f1;
     background-color: #0c2461;
@@ -141,6 +141,10 @@ body {
 
 #Canvas .yellow {
     background-color: #eabd43 !important;
+}
+
+#Canvas .finalPath {
+    background-color: #f8e2a5 !important;
 }
 
 #Canvas .home .inner_space {
@@ -284,7 +288,7 @@ body {
     background-color: #ecf0f1;
     padding: 4px;
     border-radius: 8px;
-    top: -55px;
+    top: -45px;
     left: 0px;
     width: 240px;
     font-size: 15px;
@@ -295,7 +299,7 @@ body {
 .box_blue .powerUps p,
 .box_yellow .powerUps p {
     transform-origin: top left;
-    bottom: -55px;
+    bottom: -45px;
     top: auto;
 }
 
@@ -329,8 +333,10 @@ body {
     height: 36px !important;
     width: auto !important;
     cursor: pointer;
-    animation: fadeIn 0.5s ease-in-out;
+    animation: fadeIn 0.1s ease-in-out;
+    animation: bounceIn 0.8s ease-in-out;
 }
+
 
 .useMe {
     animation: shake 1s ease-in-out infinite;
