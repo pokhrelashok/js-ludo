@@ -20,7 +20,7 @@ let powerUps = ['freeRoll'];
 
 
 function Game(totalPlayersCount) {
-    this.playerIndex = 0;
+    this.playerIndex = -1;
     this.clickAble = 0;
     this.movementAmount = 0;
     this.gameEnded = 0
@@ -39,14 +39,19 @@ function Game(totalPlayersCount) {
     this.blueEntry = 120;
     this.totalPlayersCount = totalPlayersCount;
     this.winners = [];
-    this.powerUps = [];
+    this.powerUps = [
+        [],
+        [],
+        [],
+        []
+    ];
     this.redEntry = 130;
     this.movableGottis = [];
     this.availablePlayers = [0, 1, 2, 3]
     //describes if a player has played his turn
     this.hasMoved = 1;
     //defines if the players will change
-    this.willPlayerChange = 0;
+    this.noPlayerChange = 0;
     this.gottisInside = [
         ['red1', 'red2', 'red3', 'red4'],
         ['green1', 'green2', 'green3', 'green4'],
@@ -107,7 +112,7 @@ function Game(totalPlayersCount) {
             }
             //cuts players with 30% chance
             if (biases.length > 0) this.movementAmount = this.biasedRandom(biases, 30)
-            else this.movementAmount = this.biasedRandom(6, 80)
+            else this.movementAmount = this.biasedRandom(6, 20)
         }
         let gif = document.querySelector(".gif");
         gif.src = this.movementAmount + ".gif";
@@ -117,9 +122,8 @@ function Game(totalPlayersCount) {
     }
 
 
-    this.playerIndicator = async function (noPlayerChange) {
-        if (!noPlayerChange) noPlayerChange = 0;
-        if (this.sixCount != 1 && this.sixCount != 2 && noPlayerChange == 0) {
+    this.playerIndicator = async function () {
+        if (this.sixCount != 1 && this.sixCount != 2 && this.noPlayerChange == 0) {
             this.playerIndex = (this.playerIndex + 1) % 4;
             while (!this.availablePlayers.includes(this.playerIndex)) {
                 this.playerIndex = (this.playerIndex + 1) % 4;
@@ -153,8 +157,10 @@ function Game(totalPlayersCount) {
 
     //does all the processing required to move a gotti and check if anything can be cut
     this.moveGotti = async function (id) {
+        this.removeShakeAnimation();
         if (this.hasMoved == 0) {
             this.clickAble = 0;
+            this.noPlayerChange = 0;
             let g = document.getElementById(id);
             if (g.parentNode.className.includes("inner_space")) {
                 this.getGottiOut(id)
@@ -166,16 +172,13 @@ function Game(totalPlayersCount) {
                 let fdGottis;
                 let i = currPos;
                 while (i < finalPos) {
-                    this.removeShakeAnimation();
                     fd = document.getElementById(i);
                     //if two gottis incountered in the way removes the classes that makes them smaller
-                    if (fd) {
-                        fdGottis = fd.getElementsByClassName("Gotti");
-                        if (fdGottis.length <= 2) {
-                            fd.classList.remove("twoGotti")
-                        } else if (fdGottis.length == 3) {
-                            fd.classList.remove("multipleGotti");
-                        }
+                    fdGottis = fd.getElementsByClassName("Gotti");
+                    if (fdGottis.length <= 2) {
+                        fd.classList.remove("twoGotti")
+                    } else if (fdGottis.length == 3) {
+                        fd.classList.remove("multipleGotti");
                     }
 
                     //moving to next position
@@ -195,7 +198,6 @@ function Game(totalPlayersCount) {
                             let ind = this.availablePlayers.indexOf(this.playerIndex)
                             this.availablePlayers.splice(ind, 1);
                             this.winners.push(this.currentPlayerColor);
-
                             if (this.availablePlayers.length == 1) {
                                 this.playerIndicator();
                                 this.winners.push(this.currentPlayerColor);
@@ -207,10 +209,11 @@ function Game(totalPlayersCount) {
                         gameOver.appendChild(g);
                     } else {
                         fd = document.getElementById(i);
+                        console.log(fd)
                         //checks the position for any opponents or powerups
-                        if (i == finalPos) this.checkFinalPosition(fd);
                         await new Promise(r => setTimeout(r, 200))
                         fd.appendChild(g);
+                        if (i == finalPos) this.checkFinalPosition(fd);
 
                         //checks if they are at the stop positions
                         if (this.currentPlayerColor == "red" && i == this.redStop) {
@@ -233,6 +236,7 @@ function Game(totalPlayersCount) {
                     }
                 }
             }
+            this.playerIndicator(this.noPlayerChange);
             this.hasMoved = 1;
         }
     }
@@ -243,7 +247,7 @@ function Game(totalPlayersCount) {
         let fdGottis = [];
         if (!fd.className.includes("hasStar")) {
             fdGottis = fd.getElementsByClassName("Gotti");
-            if (fdGottis.length > 0) {
+            if (fdGottis.length > 1) {
                 for (let i = 0; i < fdGottis.length; i++) {
                     if (!fdGottis[i].id.includes(this.currentPlayerColor)) {
                         let killed = fdGottis[i].id;
@@ -267,14 +271,11 @@ function Game(totalPlayersCount) {
                         if (ind != -1) {
                             this.gottisOutside[killedPlayerIndex].splice(ind, 1)
                             this.gottisInside[killedPlayerIndex].push(killed)
-                            console.log(this.gottisInside)
-                            console.log(this.gottisOutside)
                         }
-                        noPlayerChange = 1;
-                        console.log("player change nagar hai")
+                        console.log(fdGottis)
+                        this.noPlayerChange = 1;
                     } else {
-                        noPlayerChange = 0;
-                        console.log("same")
+                        this.noPlayerChange = 0;
                     }
                 }
             }
@@ -283,6 +284,8 @@ function Game(totalPlayersCount) {
         fdGottis = fd.getElementsByClassName("powerUp");
         if (fdGottis.length > 0) {
             document.querySelector(".box_" + this.currentPlayerColor + " .powerUps").appendChild(fdGottis[0]);
+            this.powerUps[this.playerIndex].push(powerUps);
+            console.log(this.powerUps)
         }
     }
 
@@ -301,22 +304,20 @@ function Game(totalPlayersCount) {
     document.addEventListener("click", async (e) => {
         //if a gotti has been clicked
         let gottiId = e.target.id;
-        console.log(this.movableGottis.includes(gottiId))
-        console.log(this.clickAble === 1)
         if (this.movableGottis.includes(gottiId) && this.clickAble === 1) {
-            console.log("move your ass gotti")
             await this.moveGotti(gottiId)
         } else if ((e.target.className == "gameOver" || e.target.className == "gif") && this.hasMoved == 1) {
             this.hasMoved = 0;
             this.movableGottis = [];
             this.makeRoll();
-        } else console.log("has moved")
+        } else if (e.target.parentNode.className == "powerUp") {
+            console.log("powerUp selected")
+        }
     });
 
     this.getGottiOut = function (id) {
         if (this.hasMoved == 0) {
             //niskeko gotti lai gottisOutside ko array ma append garni
-            this.removeShakeAnimation();
             let ind = this.gottisInside[this.playerIndex].indexOf(id);
             if (ind >= 0) this.gottisInside[this.playerIndex].splice(ind, 1)
             this.gottisOutside[this.playerIndex].push(id)
@@ -392,23 +393,29 @@ function Game(totalPlayersCount) {
             //j aayepani shake animation halney code same nai hunxa
             this.findMovableGotti();
             this.noPlayerChange = 0;
-            console.log("Movable length" + this.movableGottis.length)
             if (this.movableGottis.length == 0) {
                 this.sixCount = 0;
                 this.hasMoved = 1;
+                this.playerIndicator(0)
             } else if (this.movableGottis.length == 1) {
                 await this.moveGotti(this.movableGottis[0]);
             } else {
                 if (this.gottisOutside[this.playerIndex].length == 0) await this.moveGotti(this.movableGottis[0]);
                 else {
-                    this.clickAble = 1;
+                    //checks if all the available gottis are in the same position
+                    let ids = []
+                    for (let i = 0; i < this.movableGottis.length; i++) {
+                        ids.push(document.getElementById(this.movableGottis[i]).parentNode.id)
+                    }
+                    console.log(ids)
+                    if (ids.every((val, i, arr) => val === arr[0])) this.moveGotti(this.movableGottis[0])
+                    else this.clickAble = 1;
                 }
             }
-            this.playerIndicator(this.noPlayerChange);
         } else {
             this.sixCount = 0;
             this.hasMoved = 1;
-            this.playerIndicator();
+            this.playerIndicator(0);
         }
     }
 
@@ -465,7 +472,6 @@ playerSelectionDiv.addEventListener("click", e => {
                 let powerup = Math.floor(Math.random() * powerUps.length);
                 powerup = powerUps[powerup];
                 powerup = new createPowerup(powerup);
-                g.powerUps.push(powerup);
                 location.appendChild(powerup.image)
                 places.push(loc)
             }
@@ -476,9 +482,4 @@ playerSelectionDiv.addEventListener("click", e => {
         g.startGame();
     }
 })
-
-//same thaum ma jump gardaixa ani ek step agadi nai khadaixa
-//automove one gotti if two gotti are in the same position
-//implement freeRoll
-//make overall ui better
-//implement finishing line ko gotti lai home huna dine ai
+//focus completely on powerups and figure out how to make them work in 3 days max
