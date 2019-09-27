@@ -1,5 +1,4 @@
 /* change this to vw and make it scale better */
-* {}
 
 body {
     font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
@@ -259,7 +258,6 @@ body {
 
 
 .powerUps div {
-    animation: tada 1s ease-in-out;
     cursor: pointer;
     position: relative;
     height: 38px;
@@ -267,6 +265,10 @@ body {
     width: 38px;
     transition: all 0.2s ease-out;
     transform-origin: center;
+}
+
+.tada {
+    animation: tada 1s infinite ease-in-out;
 }
 
 .powerUps div:hover {
@@ -333,7 +335,6 @@ body {
     height: 36px !important;
     width: auto !important;
     cursor: pointer;
-    animation: fadeIn 0.1s ease-in-out;
     animation: bounceIn 0.8s ease-in-out;
 }
 

@@ -6,11 +6,9 @@ function createPowerup(type) {
     }
     let elem = document.createElement("div");
     elem.className = "powerUp";
-    this.image = document.createElement("div");
-    this.image.classList.add(type)
+    elem.classList.add(type)
     this.description = document.createElement("p");
     this.description.innerText = desc;
-    elem.appendChild(this.image);
     elem.appendChild(this.description);
     this.image = elem;
 }
@@ -20,7 +18,7 @@ let powerUps = ['freeRoll'];
 
 
 function Game(totalPlayersCount) {
-    this.playerIndex = -1;
+    this.playerIndex = 0;
     this.clickAble = 0;
     this.movementAmount = 0;
     this.gameEnded = 0
@@ -121,38 +119,66 @@ function Game(totalPlayersCount) {
         this.gameController();
     }
 
+    this.powerUpTime = () => {
+        let pps = document.querySelectorAll("." + this.currentPlayerColor + " .powerUps" + " .powerUp");
+        for (let i = 0; i < pps.length; i++) pps[i].classList.add("tada")
+        return new Promise(async resolve => {
+            let el = document.querySelector("." + this.currentPlayerColor + " .powerUps")
+            el.addEventListener("click", async (e) => {
+                if (e.target.className.includes("powerUp")) {
+                    if (e.target.className.includes("freeRoll")) {
+                        console.log("enjoy your freeRoll");
+                        this.noPlayerChange = 1;
+                        let ind = this.powerUps[this.playerIndex].indexOf(pps)
+                        this.powerUps[this.playerIndex].splice(ind, 1);
+                        e.target.parentNode.removeChild(e.target);
+                    }
+                    for (let i = 0; i < pps.length; i++) pps[i].classList.remove("tada");
+                    clearInterval();
+                }
+            });
+            await new Promise(r => setTimeout(r, 5000));
+            for (let i = 0; i < pps.length; i++) pps[i].classList.remove("tada")
+            resolve("done")
+        })
+    }
+
+
 
     this.playerIndicator = async function () {
         if (this.sixCount != 1 && this.sixCount != 2 && this.noPlayerChange == 0) {
-            this.playerIndex = (this.playerIndex + 1) % 4;
-            while (!this.availablePlayers.includes(this.playerIndex)) {
+            if (this.powerUps[this.playerIndex].length > 0) await this.powerUpTime();
+            if (this.noPlayerChange == 0) {
                 this.playerIndex = (this.playerIndex + 1) % 4;
-            }
-            this.clickAble = 1;
-        }
-        if (this.playerIndex == 0) {
-            this.currentPlayerColor = "red";
-        }
-        if (this.playerIndex == 1) {
-            this.currentPlayerColor = "green";
-        }
-        if (this.playerIndex == 2) {
-            this.currentPlayerColor = "yellow";
-        }
-        if (this.playerIndex == 3) {
-            this.currentPlayerColor = "blue";
-        }
+                while (!this.availablePlayers.includes(this.playerIndex)) {
+                    this.playerIndex = (this.playerIndex + 1) % 4;
+                }
+                this.clickAble = 1;
+                if (this.playerIndex == 0) {
+                    this.currentPlayerColor = "red";
+                }
+                if (this.playerIndex == 1) {
+                    this.currentPlayerColor = "green";
+                }
+                if (this.playerIndex == 2) {
+                    this.currentPlayerColor = "yellow";
+                }
+                if (this.playerIndex == 3) {
+                    this.currentPlayerColor = "blue";
+                }
 
-        //adds highlight around home of current player
-        let all = document.querySelectorAll(".home .profilePic");
-        for (let i = 0; i < all.length; i++) {
-            if (all[i].className.includes("highLight")) {
-                all[i].classList.remove("highLight");
-                break;
+                //adds highlight around home of current player
+                let all = document.querySelectorAll(".home .profilePic");
+                for (let i = 0; i < all.length; i++) {
+                    if (all[i].className.includes("highLight")) {
+                        all[i].classList.remove("highLight");
+                        break;
+                    }
+                }
+                let home = document.querySelector("." + this.currentPlayerColor + ".home .profilePic");
+                home.classList.add('highLight');
             }
         }
-        let home = document.querySelector("." + this.currentPlayerColor + ".home .profilePic");
-        home.classList.add('highLight');
     }
 
     //does all the processing required to move a gotti and check if anything can be cut
@@ -310,8 +336,6 @@ function Game(totalPlayersCount) {
             this.hasMoved = 0;
             this.movableGottis = [];
             this.makeRoll();
-        } else if (e.target.parentNode.className == "powerUp") {
-            console.log("powerUp selected")
         }
     });
 
