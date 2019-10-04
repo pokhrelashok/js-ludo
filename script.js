@@ -3,6 +3,8 @@ function createPowerup(type) {
     let desc = '';
     if (type == "freeRoll") {
         desc = "Gives you an extra free roll! Yeaaa";
+    } else if (type == 'skipTurn') {
+        desc = "Skips the next players' turn!"
     }
     let elem = document.createElement("div");
     elem.className = "powerUp";
@@ -11,10 +13,11 @@ function createPowerup(type) {
     this.description.innerText = desc;
     elem.appendChild(this.description);
     this.image = elem;
+    console.log(this.image)
 }
 
 
-let powerUps = ['freeRoll'];
+let powerUps = ['freeRoll', 'skipTurn'];
 
 
 function Game(totalPlayersCount) {
@@ -87,23 +90,20 @@ function Game(totalPlayersCount) {
     this.makeRoll = async function () {
         this.hasMoved = 0;
         if (this.gottisOutside[this.playerIndex].length == 0) {
-            console.log("calling biased random")
             this.movementAmount = this.biasedRandom(6, 75)
         } else {
             //sees if there is any players ahead and tries to cut it
             let biases = [];
             for (let i = 0; i < this.gottisOutside[this.playerIndex].length; i++) {
                 let pos = parseInt(parseInt(document.getElementById(this.gottisOutside[this.playerIndex][i]).parentNode.id));
-                if (pos < 100) {
-                    for (let j = 1; j <= 6; j++) {
-                        let k = pos + j;
-                        if (k > 52) k = k % 52;
-                        let tempPosition = document.getElementById(k);
-                        let opps = tempPosition.querySelector(".Gotti");
-                        if (opps) {
-                            if (!opps.id.includes(this.currentPlayerColor)) {
-                                biases.push(j);
-                            }
+                for (let j = 1; j <= 6; j++) {
+                    let k = pos + j;
+                    if (k > 52) k = k % 52;
+                    let tempPosition = document.getElementById(k);
+                    let opps = tempPosition.querySelector(".Gotti") || tempPosition.querySelector(".powerUp");
+                    if (opps) {
+                        if (!opps.id.includes(this.currentPlayerColor)) {
+                            biases.push(j);
                         }
                     }
                 }
@@ -119,67 +119,42 @@ function Game(totalPlayersCount) {
         this.gameController();
     }
 
-    this.powerUpTime = () => {
-        let pps = document.querySelectorAll("." + this.currentPlayerColor + " .powerUps" + " .powerUp");
-        for (let i = 0; i < pps.length; i++) pps[i].classList.add("tada")
-        return new Promise(async resolve => {
-            let el = document.querySelector("." + this.currentPlayerColor + " .powerUps")
-            el.addEventListener("click", async (e) => {
-                if (e.target.className.includes("powerUp")) {
-                    if (e.target.className.includes("freeRoll")) {
-                        console.log("enjoy your freeRoll");
-                        this.noPlayerChange = 1;
-                        let ind = this.powerUps[this.playerIndex].indexOf(pps)
-                        this.powerUps[this.playerIndex].splice(ind, 1);
-                        e.target.parentNode.removeChild(e.target);
-                    }
-                    for (let i = 0; i < pps.length; i++) pps[i].classList.remove("tada");
-                    clearInterval();
-                }
-            });
-            await new Promise(r => setTimeout(r, 5000));
-            for (let i = 0; i < pps.length; i++) pps[i].classList.remove("tada")
-            resolve("done")
-        })
-    }
-
-
-
     this.playerIndicator = async function () {
+        this.hasMoved = 1;
         if (this.sixCount != 1 && this.sixCount != 2 && this.noPlayerChange == 0) {
-            if (this.powerUps[this.playerIndex].length > 0) await this.powerUpTime();
-            if (this.noPlayerChange == 0) {
-                this.playerIndex = (this.playerIndex + 1) % 4;
-                while (!this.availablePlayers.includes(this.playerIndex)) {
-                    this.playerIndex = (this.playerIndex + 1) % 4;
-                }
-                this.clickAble = 1;
-                if (this.playerIndex == 0) {
-                    this.currentPlayerColor = "red";
-                }
-                if (this.playerIndex == 1) {
-                    this.currentPlayerColor = "green";
-                }
-                if (this.playerIndex == 2) {
-                    this.currentPlayerColor = "yellow";
-                }
-                if (this.playerIndex == 3) {
-                    this.currentPlayerColor = "blue";
-                }
-
-                //adds highlight around home of current player
-                let all = document.querySelectorAll(".home .profilePic");
-                for (let i = 0; i < all.length; i++) {
-                    if (all[i].className.includes("highLight")) {
-                        all[i].classList.remove("highLight");
-                        break;
-                    }
-                }
-                let home = document.querySelector("." + this.currentPlayerColor + ".home .profilePic");
-                home.classList.add('highLight');
+            if (this.powerUps[this.playerIndex].length > 0) {
+                let pps = document.querySelectorAll("." + this.currentPlayerColor + " .powerUps" + " .powerUp");
+                for (let i = 0; i < pps.length; i++) pps[i].classList.add("tada")
+                console.log("starting timeOut");
+                this.clickAble = 0;
+                this.hasMoved = 0;
+                await new Promise(r => setTimeout(r, 5000));
+                this.hasMoved = 1;
+                console.log("timeout stopped");
+                for (let i = 0; i < pps.length; i++) pps[i].classList.remove("tada");
             }
+            this.playerIndex = (this.playerIndex + 1) % 4;
+            while (!this.availablePlayers.includes(this.playerIndex)) {
+                this.playerIndex = (this.playerIndex + 1) % 4;
+            }
+            this.clickAble = 1;
+            if (this.playerIndex == 0) this.currentPlayerColor = "red";
+            else if (this.playerIndex == 1) this.currentPlayerColor = "green";
+            else if (this.playerIndex == 2) this.currentPlayerColor = "yellow";
+            else if (this.playerIndex == 3) this.currentPlayerColor = "blue";
+            //adds highlight around home of current player
+            let all = document.querySelectorAll(".home .profilePic");
+            for (let i = 0; i < all.length; i++) {
+                if (all[i].className.includes("highLight")) {
+                    all[i].classList.remove("highLight");
+                    break;
+                }
+            }
+            let home = document.querySelector("." + this.currentPlayerColor + ".home .profilePic");
+            home.classList.add('highLight');
         }
     }
+
 
     //does all the processing required to move a gotti and check if anything can be cut
     this.moveGotti = async function (id) {
@@ -262,8 +237,9 @@ function Game(totalPlayersCount) {
                     }
                 }
             }
-            this.playerIndicator(this.noPlayerChange);
             this.hasMoved = 1;
+            await this.playerIndicator(this.noPlayerChange);
+            console.log("1")
         }
     }
 
@@ -309,8 +285,9 @@ function Game(totalPlayersCount) {
         }
         fdGottis = fd.getElementsByClassName("powerUp");
         if (fdGottis.length > 0) {
+            console.log(fdGottis[0])
+            this.powerUps[this.playerIndex].push(fdGottis[0].className.split(" ")[1]);
             document.querySelector(".box_" + this.currentPlayerColor + " .powerUps").appendChild(fdGottis[0]);
-            this.powerUps[this.playerIndex].push(powerUps);
             console.log(this.powerUps)
         }
     }
@@ -336,6 +313,33 @@ function Game(totalPlayersCount) {
             this.hasMoved = 0;
             this.movableGottis = [];
             this.makeRoll();
+        } else if (!e.target.className.includes("powerUps") && e.target.className.includes("powerUp")) {
+            if (e.target.parentNode && e.target.parentNode.parentNode) {
+                console.log("powerUptime")
+                if (!e.target.className.includes("powerUps") && e.target.className.includes("powerUp") && e.target.parentNode.parentNode.className.includes(this.currentPlayerColor) && this.clickAble == 0 && this.hasMoved == 0) {
+                    e.target.parentNode.removeChild(e.target);
+                    let ind = this.powerUps[this.playerIndex].indexOf(e.target.className.split(" ")[1]);
+                    this.powerUps[this.playerIndex].splice(ind, 1)
+                    if (e.target.className.includes("freeRoll")) {
+                        console.log("enjoy your freeRoll");
+                        this.noPlayerChange = 1;
+                    } else if (e.target.className.includes("skipTurn")) {
+                        console.log("skipping next playersTUrn");
+                        this.playerIndex = (this.playerIndex + 1) % 4;
+                        while (!this.availablePlayers.includes(this.playerIndex)) {
+                            this.playerIndex = (this.playerIndex + 1) % 4;
+                        }
+                        this.playerIndicator();
+                    }
+                    this.hasMoved = 1;
+                    var killId = setTimeout(function () {
+                        for (var i = killId; i > 0; i--) {
+                            console.log("killed " + i + " timeout")
+                            clearInterval(i);
+                        }
+                    }, 0);
+                }
+            }
         }
     });
 
@@ -408,20 +412,14 @@ function Game(totalPlayersCount) {
 
     this.gameController = async function () {
         this.hasMoved = 0;
-        if (this.movementAmount != 6) {
-            this.sixCount = 0;
-        } else {
-            this.sixCount++;
-        }
+        if (this.movementAmount != 6) this.sixCount = 0;
+        else this.sixCount++;
         if (this.sixCount != 3) {
             //j aayepani shake animation halney code same nai hunxa
             this.findMovableGotti();
             this.noPlayerChange = 0;
-            if (this.movableGottis.length == 0) {
-                this.sixCount = 0;
-                this.hasMoved = 1;
-                this.playerIndicator(0)
-            } else if (this.movableGottis.length == 1) {
+            if (this.movableGottis.length == 0) this.playerIndicator();
+            else if (this.movableGottis.length == 1) {
                 await this.moveGotti(this.movableGottis[0]);
             } else {
                 if (this.gottisOutside[this.playerIndex].length == 0) await this.moveGotti(this.movableGottis[0]);
@@ -431,15 +429,13 @@ function Game(totalPlayersCount) {
                     for (let i = 0; i < this.movableGottis.length; i++) {
                         ids.push(document.getElementById(this.movableGottis[i]).parentNode.id)
                     }
-                    console.log(ids)
                     if (ids.every((val, i, arr) => val === arr[0])) this.moveGotti(this.movableGottis[0])
                     else this.clickAble = 1;
                 }
             }
         } else {
             this.sixCount = 0;
-            this.hasMoved = 1;
-            this.playerIndicator(0);
+            this.playerIndicator();
         }
     }
 
@@ -489,7 +485,7 @@ playerSelectionDiv.addEventListener("click", e => {
         g = new Game(totalPlayersCount);
         //placing powerups in the board
         let places = [];
-        for (i = 0; i < 6; i++) {
+        for (i = 0; i < 33; i++) {
             let loc = Math.ceil(Math.random() * 52);
             if (!places.includes(loc) && loc != 40 && loc != 1 && loc != 48 && loc != 14 && loc != 9 && loc != 22 && loc != 27 && loc != 35) {
                 let location = document.getElementById(loc);

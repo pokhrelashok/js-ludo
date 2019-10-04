@@ -275,9 +275,16 @@ body {
     transform: scale(1.2)
 }
 
+.powerUp {
+    background-size: cover;
+}
+
 .freeRoll {
     background-image: url("./freeRoll.png");
-    background-size: cover;
+}
+
+.skipTurn {
+    background-image: url("./skipTurn.png");
 }
 
 .powerUps p {
@@ -306,7 +313,7 @@ body {
 }
 
 
-.powerUps div:hover+p {
+.powerUps .powerUp:hover p {
     animation: fadeIn 1s ease-in-out;
     display: inline-block;
 }
