@@ -40,6 +40,7 @@ function Game(totalPlayersCount) {
     this.greenEntry = 100;
     this.yellowEntry = 110;
     this.blueEntry = 120;
+    this.isPowerUpActive = 0;
     this.totalPlayersCount = totalPlayersCount;
     this.winners = [];
     this.powerUps = [
@@ -123,16 +124,20 @@ function Game(totalPlayersCount) {
         this.hasMoved = 1;
         if (this.sixCount != 1 && this.sixCount != 2 && this.noPlayerChange == 0) {
             if (this.powerUps[this.playerIndex].length > 0) {
-                let pps = document.querySelectorAll("." + this.currentPlayerColor + " .powerUps" + " .powerUp");
-                for (let i = 0; i < pps.length; i++) pps[i].classList.add("tada")
-                console.log("starting timeOut");
-                this.clickAble = 0;
-                this.hasMoved = 0;
-                await new Promise(r => setTimeout(r, 5000));
-                this.hasMoved = 1;
-                console.log("timeout stopped");
-                for (let i = 0; i < pps.length; i++) pps[i].classList.remove("tada");
+                this.isPowerUpActive++;
+                if (this.isPowerUpActive === 1) {
+                    let pps = document.querySelectorAll("." + this.currentPlayerColor + " .powerUps" + " .powerUp");
+                    for (let i = 0; i < pps.length; i++) pps[i].classList.add("tada")
+                    console.log("starting timeOut");
+                    this.clickAble = 0;
+                    this.hasMoved = 0;
+                    await new Promise(r => setTimeout(r, 5000));
+                    this.hasMoved = 1;
+                    console.log("timeout stopped");
+                    for (let i = 0; i < pps.length; i++) pps[i].classList.remove("tada");
+                }
             }
+            this.isPowerUpActive = 0;
             this.removeShakeAnimation();
             this.playerIndex = (this.playerIndex + 1) % 4;
             while (!this.availablePlayers.includes(this.playerIndex)) {
@@ -244,7 +249,6 @@ function Game(totalPlayersCount) {
         }
     }
 
-
     this.checkFinalPosition = (fd) => {
         //checks for opponents in the final position
         let fdGottis = [];
@@ -254,27 +258,7 @@ function Game(totalPlayersCount) {
                 for (let i = 0; i < fdGottis.length; i++) {
                     if (!fdGottis[i].id.includes(this.currentPlayerColor)) {
                         let killed = fdGottis[i].id;
-                        let col = killed.substr(0, killed.length - 1)
-                        let spots = document.getElementsByClassName("home_" + col);
-                        for (let j = 0; j < spots.length; j++) {
-                            if (spots[j].children.length == 0) {
-                                spots[j].appendChild(document.querySelector("#" + killed))
-                            }
-                        }
-                        //noPlayerChange gotti lai gottisOutside ko array ma append garni
-                        let ind = -1;
-                        let killedPlayerIndex = -1;
-                        for (let j = 0; j < this.gottisOutside.length; j++) {
-                            if (this.gottisOutside[j].indexOf(killed) != -1) {
-                                ind = this.gottisOutside[j].indexOf(killed);
-                                killedPlayerIndex = j;
-                                break;
-                            }
-                        }
-                        if (ind != -1) {
-                            this.gottisOutside[killedPlayerIndex].splice(ind, 1)
-                            this.gottisInside[killedPlayerIndex].push(killed)
-                        }
+                        this.killGotti(killed);
                         console.log(fdGottis)
                         this.noPlayerChange = 1;
                     } else {
@@ -313,7 +297,11 @@ function Game(totalPlayersCount) {
         //if a gotti has been clicked
         let gottiId = e.target.id;
         if (this.movableGottis.includes(gottiId) && this.clickAble === 1) {
-            await this.moveGotti(gottiId)
+            if (this.isPowerUpActive) {
+                let killed = e.target.id;
+                this.killGotti(killed);
+                this.playerIndicator();
+            } else await this.moveGotti(gottiId)
         } else if ((e.target.className == "gameOver" || e.target.className == "gif") && this.hasMoved == 1) {
             this.hasMoved = 0;
             this.movableGottis = [];
@@ -321,6 +309,7 @@ function Game(totalPlayersCount) {
         } else if (!e.target.className.includes("powerUps") && e.target.className.includes("powerUp") && e.target.parentNode.parentNode.className.includes(this.currentPlayerColor) && this.clickAble == 0 && this.hasMoved == 0) {
             let ind = this.powerUps[this.playerIndex].indexOf(e.target.className.split(" ")[1]);
             this.powerUps[this.playerIndex].splice(ind, 1)
+            this.isPowerUpActive = 1;
             if (e.target.className.includes("freeRoll")) {
                 console.log("enjoy your freeRoll");
                 this.noPlayerChange = 1;
@@ -334,17 +323,19 @@ function Game(totalPlayersCount) {
             } else if (e.target.className.includes("killAnyGotti")) {
                 console.log("killing any player");
                 let count = 0;
+                this.clickAble = 1;
+                this.movableGottis = []
                 for (let i = 0; i < this.gottisOutside.length; i++) {
                     for (let j = 0; j < this.gottisOutside[i].length; j++) {
                         if (i != this.playerIndex) {
-                            count++
+                            count++;
                             let gotti = document.querySelector("#" + this.gottisOutside[i][j]);
+                            this.movableGottis.push(this.gottisOutside[i][j])
                             gotti.classList.add("useMe")
                         }
                     }
                 }
-                if (!count > 0) return
-                e.target.parentNode.removeChild(e.target);
+                if (count == 0) return
             }
             e.target.parentNode.removeChild(e.target);
             this.hasMoved = 1;
@@ -360,6 +351,31 @@ function Game(totalPlayersCount) {
             for (let i = 0; i < pps.length; i++) pps[i].classList.remove("tada");
         }
     });
+
+    this.killGotti = (killed) => {
+        let col = killed.substr(0, killed.length - 1)
+        let spots = document.getElementsByClassName("home_" + col);
+        for (let j = 0; j < spots.length; j++) {
+            if (spots[j].children.length == 0) {
+                spots[j].appendChild(document.querySelector("#" + killed))
+                break;
+            }
+        }
+        //noPlayerChange gotti lai gottisOutside ko array ma append garni
+        let ind = -1;
+        let killedPlayerIndex = -1;
+        for (let j = 0; j < this.gottisOutside.length; j++) {
+            if (this.gottisOutside[j].indexOf(killed) != -1) {
+                ind = this.gottisOutside[j].indexOf(killed);
+                killedPlayerIndex = j;
+                break;
+            }
+        }
+        if (ind != -1) {
+            this.gottisOutside[killedPlayerIndex].splice(ind, 1)
+            this.gottisInside[killedPlayerIndex].push(killed)
+        }
+    }
 
     this.getGottiOut = function (id) {
         if (this.hasMoved == 0) {
@@ -520,4 +536,4 @@ playerSelectionDiv.addEventListener("click", e => {
         g.startGame();
     }
 })
-//focus completely on powerups and figure out how to make them work in 3 days max
+//kill any player lyang hudaixa
