@@ -235,7 +235,7 @@ body {
     position: absolute;
     width: 70%;
     top: 0;
-    height: 38px;
+    height: 42px;
     background-color: #ecf0f1;
     border-radius: 4px;
     border: 1.5px black solid;
@@ -260,9 +260,8 @@ body {
 .powerUps div {
     cursor: pointer;
     position: relative;
-    height: 38px;
     box-sizing: border-box;
-    width: 38px;
+    width: 40px;
     transition: all 0.2s ease-out;
     transform-origin: center;
 }
@@ -271,12 +270,10 @@ body {
     animation: tada 1s infinite ease-in-out;
 }
 
-.powerUps div:hover {
-    transform: scale(1.2)
-}
-
 .powerUp {
-    background-size: cover;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 .freeRoll {
@@ -285,6 +282,10 @@ body {
 
 .skipTurn {
     background-image: url("./skipTurn.png");
+}
+
+.killAnyGotti {
+    background-image: url("./killAnyGotti.png");
 }
 
 .powerUps p {

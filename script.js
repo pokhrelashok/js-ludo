@@ -5,6 +5,8 @@ function createPowerup(type) {
         desc = "Gives you an extra free roll! Yeaaa";
     } else if (type == 'skipTurn') {
         desc = "Skips the next players' turn!"
+    } else if (type == 'killAnyGotti') {
+        desc = "Kill any player in the Arena!"
     }
     let elem = document.createElement("div");
     elem.className = "powerUp";
@@ -17,7 +19,7 @@ function createPowerup(type) {
 }
 
 
-let powerUps = ['freeRoll', 'skipTurn'];
+let powerUps = ['freeRoll', 'skipTurn', 'killAnyGotti'];
 
 
 function Game(totalPlayersCount) {
@@ -49,9 +51,7 @@ function Game(totalPlayersCount) {
     this.redEntry = 130;
     this.movableGottis = [];
     this.availablePlayers = [0, 1, 2, 3]
-    //describes if a player has played his turn
     this.hasMoved = 1;
-    //defines if the players will change
     this.noPlayerChange = 0;
     this.gottisInside = [
         ['red1', 'red2', 'red3', 'red4'],
@@ -133,6 +133,7 @@ function Game(totalPlayersCount) {
                 console.log("timeout stopped");
                 for (let i = 0; i < pps.length; i++) pps[i].classList.remove("tada");
             }
+            this.removeShakeAnimation();
             this.playerIndex = (this.playerIndex + 1) % 4;
             while (!this.availablePlayers.includes(this.playerIndex)) {
                 this.playerIndex = (this.playerIndex + 1) % 4;
@@ -294,13 +295,17 @@ function Game(totalPlayersCount) {
 
     this.removeShakeAnimation = function () {
         //remove shake effect
-        for (let i = 0; i < this.gottisOutside[this.playerIndex].length; i++) {
-            let gotti = document.querySelector("#" + this.gottisOutside[this.playerIndex][i]);
-            gotti.classList.remove("useMe")
+        for (let i = 0; i < this.gottisOutside.length; i++) {
+            for (let j = 0; j < this.gottisOutside[i].length; j++) {
+                let gotti = document.querySelector("#" + this.gottisOutside[i][j]);
+                gotti.classList.remove("useMe")
+            }
         }
-        for (let i = 0; i < this.gottisInside[this.playerIndex].length; i++) {
-            let gotti = document.querySelector("#" + this.gottisInside[this.playerIndex][i]);
-            gotti.classList.remove("useMe")
+        for (let i = 0; i < this.gottisInside.length; i++) {
+            for (let j = 0; j < this.gottisInside[i].length; j++) {
+                let gotti = document.querySelector("#" + this.gottisInside[i][j]);
+                gotti.classList.remove("useMe")
+            }
         }
     }
 
@@ -313,33 +318,46 @@ function Game(totalPlayersCount) {
             this.hasMoved = 0;
             this.movableGottis = [];
             this.makeRoll();
-        } else if (!e.target.className.includes("powerUps") && e.target.className.includes("powerUp")) {
-            if (e.target.parentNode && e.target.parentNode.parentNode) {
-                console.log("powerUptime")
-                if (!e.target.className.includes("powerUps") && e.target.className.includes("powerUp") && e.target.parentNode.parentNode.className.includes(this.currentPlayerColor) && this.clickAble == 0 && this.hasMoved == 0) {
-                    e.target.parentNode.removeChild(e.target);
-                    let ind = this.powerUps[this.playerIndex].indexOf(e.target.className.split(" ")[1]);
-                    this.powerUps[this.playerIndex].splice(ind, 1)
-                    if (e.target.className.includes("freeRoll")) {
-                        console.log("enjoy your freeRoll");
-                        this.noPlayerChange = 1;
-                    } else if (e.target.className.includes("skipTurn")) {
-                        console.log("skipping next playersTUrn");
-                        this.playerIndex = (this.playerIndex + 1) % 4;
-                        while (!this.availablePlayers.includes(this.playerIndex)) {
-                            this.playerIndex = (this.playerIndex + 1) % 4;
-                        }
-                        this.playerIndicator();
-                    }
-                    this.hasMoved = 1;
-                    var killId = setTimeout(function () {
-                        for (var i = killId; i > 0; i--) {
-                            console.log("killed " + i + " timeout")
-                            clearInterval(i);
-                        }
-                    }, 0);
+        } else if (!e.target.className.includes("powerUps") && e.target.className.includes("powerUp") && e.target.parentNode.parentNode.className.includes(this.currentPlayerColor) && this.clickAble == 0 && this.hasMoved == 0) {
+            let ind = this.powerUps[this.playerIndex].indexOf(e.target.className.split(" ")[1]);
+            this.powerUps[this.playerIndex].splice(ind, 1)
+            if (e.target.className.includes("freeRoll")) {
+                console.log("enjoy your freeRoll");
+                this.noPlayerChange = 1;
+            } else if (e.target.className.includes("skipTurn")) {
+                console.log("skipping next playersTUrn");
+                this.playerIndex = (this.playerIndex + 1) % 4;
+                while (!this.availablePlayers.includes(this.playerIndex)) {
+                    this.playerIndex = (this.playerIndex + 1) % 4;
                 }
+                this.playerIndicator();
+            } else if (e.target.className.includes("killAnyGotti")) {
+                console.log("killing any player");
+                let count = 0;
+                for (let i = 0; i < this.gottisOutside.length; i++) {
+                    for (let j = 0; j < this.gottisOutside[i].length; j++) {
+                        if (i != this.playerIndex) {
+                            count++
+                            let gotti = document.querySelector("#" + this.gottisOutside[i][j]);
+                            gotti.classList.add("useMe")
+                        }
+                    }
+                }
+                if (!count > 0) return
+                e.target.parentNode.removeChild(e.target);
             }
+            e.target.parentNode.removeChild(e.target);
+            this.hasMoved = 1;
+            var killId = setTimeout(function () {
+                for (var i = killId; i > 0; i--) {
+                    console.log("killed " + i + " timeout")
+                    clearInterval(i);
+                }
+            }, 0);
+            console.log("timeout stopped");
+            let pps = document.querySelectorAll("." + this.currentPlayerColor + " .powerUps" + " .powerUp");
+            this.hasMoved = 1;
+            for (let i = 0; i < pps.length; i++) pps[i].classList.remove("tada");
         }
     });
 
