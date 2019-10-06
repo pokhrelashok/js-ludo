@@ -80,7 +80,7 @@ function Game(totalPlayersCount) {
                     gotti.classList.add("Gotti");
                     gotti.id = this.gottisInside[i][j];
                     let col = gotti.id.slice(0, gotti.id.length - 1)
-                    gotti.src = col + ".png";
+                    gotti.src = './images/gottis/' + col + '.png ';
                     let pnt = document.querySelectorAll(".home_" + col + ".inner_space");
                     pnt[j].appendChild(gotti);
                 }
@@ -114,8 +114,7 @@ function Game(totalPlayersCount) {
             else this.movementAmount = this.biasedRandom(6, 20)
         }
         let gif = document.querySelector(".gif");
-        gif.src = this.movementAmount + ".gif";
-        //waits untile the gif rolls
+        gif.src = '../images/GIFS/' + this.movementAmount + ".gif";
         await new Promise(r => setTimeout(r, 3000));
         this.gameController();
     }
@@ -507,19 +506,14 @@ document.querySelector("#playAgain").addEventListener("click", e => {
 playerSelectionDiv.addEventListener("click", e => {
     let totalPlayersCount = 4;
     if (e.target.id.includes("players")) {
-        if (e.target.id == "2players") {
-            totalPlayersCount = 2
-            console.log(totalPlayersCount)
-        } else if (e.target.id == '3players') {
-            totalPlayersCount = 3;
-        } else if ((e.target.id == '4players')) {
-            totalPlayersCount = 4;
-        }
+        if (e.target.id == "2players") totalPlayersCount = 2
+        else if (e.target.id == '3players') totalPlayersCount = 3;
+        else if (e.target.id == '4players') totalPlayersCount = 4;
         let g = {};
         g = new Game(totalPlayersCount);
         //placing powerups in the board
         let places = [];
-        for (i = 0; i < 33; i++) {
+        for (i = 0; i < 8; i++) {
             let loc = Math.ceil(Math.random() * 52);
             if (!places.includes(loc) && loc != 40 && loc != 1 && loc != 48 && loc != 14 && loc != 9 && loc != 22 && loc != 27 && loc != 35) {
                 let location = document.getElementById(loc);
@@ -530,7 +524,6 @@ playerSelectionDiv.addEventListener("click", e => {
                 places.push(loc)
             }
         }
-        console.log(g.powerUps);
         playerSelectionDiv.classList.add("hidden");
         document.querySelector("#Canvas").classList.remove("hidden");
         g.startGame();
