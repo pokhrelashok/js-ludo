@@ -114,7 +114,7 @@ function Game(totalPlayersCount) {
             else this.movementAmount = this.biasedRandom(6, 20)
         }
         let gif = document.querySelector(".gif");
-        gif.src = '../images/GIFS/' + this.movementAmount + ".gif";
+        gif.src = './images/GIFS/' + this.movementAmount + ".gif";
         await new Promise(r => setTimeout(r, 3000));
         this.gameController();
     }
@@ -513,7 +513,8 @@ playerSelectionDiv.addEventListener("click", e => {
         g = new Game(totalPlayersCount);
         //placing powerups in the board
         let places = [];
-        for (i = 0; i < 8; i++) {
+        let noOfPowerUps = 6 + Math.ceil(Math.random() * 4)
+        for (i = 0; i < noOfPowerUps; i++) {
             let loc = Math.ceil(Math.random() * 52);
             if (!places.includes(loc) && loc != 40 && loc != 1 && loc != 48 && loc != 14 && loc != 9 && loc != 22 && loc != 27 && loc != 35) {
                 let location = document.getElementById(loc);
@@ -529,4 +530,3 @@ playerSelectionDiv.addEventListener("click", e => {
         g.startGame();
     }
 })
-//kill any player lyang hudaixa
