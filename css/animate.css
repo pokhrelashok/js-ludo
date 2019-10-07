@@ -466,6 +466,20 @@
   }
 }
 
+
+
+@keyframes timer {
+  0% {
+    transform-origin: left center;
+    transform: scaleX(0);
+  }
+
+  100% {
+    transform-origin: left center;
+    transform: scaleX(1);
+  }
+}
+
 @keyframes tada {
   from {
     -webkit-transform: scale3d(1, 1, 1);

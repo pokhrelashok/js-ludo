@@ -185,10 +185,11 @@ body {
 #Canvas .path div {
     position: relative;
     display: flex;
+    cursor: pointer;
     justify-content: space-around;
-    box-sizing: border-box;
-    border: 1px solid black;
+    border: 0.1px solid black;
     background-color: #ecf0f1;
+    box-sizing: border-box;
 }
 
 #Canvas .path.horizontal div {
@@ -242,6 +243,7 @@ body {
     left: 60px;
     top: -20px;
     z-index: 1;
+    transition: all 0.4s ease-in-out;
 }
 
 .box_green .powerUps,
@@ -266,13 +268,29 @@ body {
     transform-origin: center;
 }
 
-.tada {
-    animation: tada 1s infinite ease-in-out;
+.focus {
+    transform-origin: center;
+    transform: scale(1.12);
 }
+
+.focus::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 99%;
+    width: 100%;
+    border-radius: 4px;
+    background-color: #f8e2a5;
+    animation: linear 5s timer;
+}
+
+
 
 .powerUp {
     background-size: contain;
     background-repeat: no-repeat;
+    z-index: 5;
     background-position: center;
 }
 
@@ -292,7 +310,6 @@ body {
     z-index: 1000;
     font-weight: normal;
     text-align: center;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     display: none;
     position: absolute;
     background-color: #ecf0f1;
@@ -315,7 +332,7 @@ body {
 
 
 .powerUps .powerUp:hover p {
-    animation: fadeIn 1s ease-in-out;
+    animation: fadeIn 0.5s ease-in-out;
     display: inline-block;
 }
 
@@ -340,7 +357,7 @@ body {
 .Gotti {
     z-index: 10;
     margin: auto !important;
-    height: 36px !important;
+    height: 34px !important;
     width: auto !important;
     cursor: pointer;
     animation: bounceIn 0.8s ease-in-out;

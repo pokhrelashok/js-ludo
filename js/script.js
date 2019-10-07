@@ -125,15 +125,15 @@ function Game(totalPlayersCount) {
             if (this.powerUps[this.playerIndex].length > 0) {
                 this.isPowerUpActive++;
                 if (this.isPowerUpActive === 1) {
-                    let pps = document.querySelectorAll("." + this.currentPlayerColor + " .powerUps" + " .powerUp");
-                    for (let i = 0; i < pps.length; i++) pps[i].classList.add("tada")
+                    let pps = document.querySelector("." + this.currentPlayerColor + " .powerUps");
+                    pps.classList.add("focus")
                     console.log("starting timeOut");
                     this.clickAble = 0;
                     this.hasMoved = 0;
                     await new Promise(r => setTimeout(r, 5000));
                     this.hasMoved = 1;
                     console.log("timeout stopped");
-                    for (let i = 0; i < pps.length; i++) pps[i].classList.remove("tada");
+                    pps.classList.remove("focus")
                 }
             }
             this.isPowerUpActive = 0;
@@ -295,19 +295,40 @@ function Game(totalPlayersCount) {
     document.addEventListener("click", async (e) => {
         //if a gotti has been clicked
         let gottiId = e.target.id;
-        if (this.movableGottis.includes(gottiId) && this.clickAble === 1) {
+        if ((e.target.className == "gameOver" || e.target.className == "gif") && this.hasMoved == 1) {
+            this.hasMoved = 0;
+            this.movableGottis = [];
+            this.makeRoll();
+        } else if ((this.movableGottis.includes(gottiId) && this.clickAble === 1) || (!isNaN(gottiId) && this.clickAble === 1)) {
+            //for kill any player powerUp
             if (this.isPowerUpActive) {
                 let killed = e.target.id;
                 this.killGotti(killed);
                 this.playerIndicator();
-            } else await this.moveGotti(gottiId)
-        } else if ((e.target.className == "gameOver" || e.target.className == "gif") && this.hasMoved == 1) {
-            this.hasMoved = 0;
-            this.movableGottis = [];
-            this.makeRoll();
+            } else {
+                console.log("GOtti id" + gottiId)
+                // if clicked in the holder then we have to pick the gotti and move by ourselves
+                if (!isNaN(gottiId)) {
+                    console.log("clicked in the box")
+                    let ch = e.target.querySelectorAll(".Gotti");
+                    console.log("clicked in the div with childrens");
+                    console.log(ch)
+                    if (ch) {
+                        for (let i = 0; i < ch.length; i++) {
+                            if (this.movableGottis.includes(ch[i].id)) {
+                                await this.moveGotti(ch[i]);
+                                break;
+                            }
+                        }
+                    }
+                } else await this.moveGotti(gottiId)
+            }
         } else if (!e.target.className.includes("powerUps") && e.target.className.includes("powerUp") && e.target.parentNode.parentNode.className.includes(this.currentPlayerColor) && this.clickAble == 0 && this.hasMoved == 0) {
             let ind = this.powerUps[this.playerIndex].indexOf(e.target.className.split(" ")[1]);
-            this.powerUps[this.playerIndex].splice(ind, 1)
+            this.powerUps[this.playerIndex].splice(ind, 1);
+            let pps = document.querySelector("." + this.currentPlayerColor + " .powerUps");
+            this.hasMoved = 1;
+            pps.classList.remove("focus")
             this.isPowerUpActive = 1;
             if (e.target.className.includes("freeRoll")) {
                 console.log("enjoy your freeRoll");
@@ -345,9 +366,6 @@ function Game(totalPlayersCount) {
                 }
             }, 0);
             console.log("timeout stopped");
-            let pps = document.querySelectorAll("." + this.currentPlayerColor + " .powerUps" + " .powerUp");
-            this.hasMoved = 1;
-            for (let i = 0; i < pps.length; i++) pps[i].classList.remove("tada");
         }
     });
 
@@ -530,3 +548,6 @@ playerSelectionDiv.addEventListener("click", e => {
         g.startGame();
     }
 })
+
+//add more powerups
+//solve the glitch while hovering in a powerup
