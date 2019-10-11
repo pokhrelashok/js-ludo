@@ -1,3 +1,13 @@
+const writeEvents = (text) => {
+    const d = document.querySelector(".messages");
+    const li = document.createElement("li");
+    li.innerHTML = text;
+    d.appendChild(li)
+}
+const sock = io();
+sock.on('message', writeEvents)
+writeEvents("Welcome to the best game")
+
 function createPowerup(type) {
     this.type = type;
     let desc = '';
@@ -168,7 +178,7 @@ function Game(totalPlayersCount) {
             this.clickAble = 0;
             this.noPlayerChange = 0;
             let g = document.getElementById(id);
-            if (g.parentNode.className.includes("inner_space")) {
+            if (g.parentNode && g.parentNode.className.includes("inner_space")) {
                 this.getGottiOut(id)
             } else {
                 let currPos = parseInt(g.parentNode.id);
@@ -215,6 +225,7 @@ function Game(totalPlayersCount) {
                         gameOver.appendChild(g);
                     } else {
                         fd = document.getElementById(i);
+                        fdGottis = fd.getElementsByClassName("Gotti");
                         console.log(fd)
                         //checks the position for any opponents or powerups
                         await new Promise(r => setTimeout(r, 200))
@@ -278,16 +289,16 @@ function Game(totalPlayersCount) {
 
     this.removeShakeAnimation = function () {
         //remove shake effect
-        for (let i = 0; i < this.gottisOutside.length; i++) {
+        for (let i = 0; i < 4; i++) {
             for (let j = 0; j < this.gottisOutside[i].length; j++) {
                 let gotti = document.querySelector("#" + this.gottisOutside[i][j]);
-                gotti.classList.remove("useMe")
+                if (gotti) gotti.classList.remove("useMe")
             }
         }
-        for (let i = 0; i < this.gottisInside.length; i++) {
+        for (let i = 0; i < 4; i++) {
             for (let j = 0; j < this.gottisInside[i].length; j++) {
                 let gotti = document.querySelector("#" + this.gottisInside[i][j]);
-                gotti.classList.remove("useMe")
+                if (gotti) gotti.classList.remove("useMe")
             }
         }
     }
@@ -299,7 +310,7 @@ function Game(totalPlayersCount) {
             this.hasMoved = 0;
             this.movableGottis = [];
             this.makeRoll();
-        } else if ((this.movableGottis.includes(gottiId) && this.clickAble === 1) || (!isNaN(gottiId) && this.clickAble === 1)) {
+        } else if ((this.movableGottis.includes(gottiId) && this.clickAble === 1) || (gottiId && !isNaN(gottiId) && this.clickAble === 1)) {
             //for kill any player powerUp
             if (this.isPowerUpActive) {
                 let killed = e.target.id;
@@ -531,7 +542,7 @@ playerSelectionDiv.addEventListener("click", e => {
         g = new Game(totalPlayersCount);
         //placing powerups in the board
         let places = [];
-        let noOfPowerUps = 6 + Math.ceil(Math.random() * 4)
+        let noOfPowerUps = 20 + Math.ceil(Math.random() * 4)
         for (i = 0; i < noOfPowerUps; i++) {
             let loc = Math.ceil(Math.random() * 52);
             if (!places.includes(loc) && loc != 40 && loc != 1 && loc != 48 && loc != 14 && loc != 9 && loc != 22 && loc != 27 && loc != 35) {
@@ -549,5 +560,4 @@ playerSelectionDiv.addEventListener("click", e => {
     }
 })
 
-//add more powerups
-//solve the glitch while hovering in a powerup
+// include chat ability first
