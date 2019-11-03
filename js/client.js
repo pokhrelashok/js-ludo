@@ -1,12 +1,29 @@
-const writeEvents = (text) => {
-    const d = document.querySelector(".messages");
-    const li = document.createElement("li");
-    li.innerHTML = text;
-    d.appendChild(li)
+const CONSTANTS = {
+    defaultColors: ['red', 'green', 'yellow', 'blue']
+}
+const showMessage = (text, color) => {
+    const d = document.querySelector("." + color + ".home" + " .message");
+    let p;
+    if (!text.includes(".gif")) {
+        p = document.createElement("p");
+        p.innerHTML = text;
+    } else {
+        p = document.createElement("img")
+        p.src = text;
+    }
+    d.appendChild(p)
+    setTimeout(() => {
+        d.removeChild(p)
+    }, 4000);
 }
 const sock = io();
-sock.on('message', writeEvents)
-writeEvents("Welcome to the best game")
+let GAMEDATA = {
+    playerIds: [],
+    playerIndex: '',
+    movableGottis: [],
+    currentPlayerColor: '',
+}
+
 
 function createPowerup(type) {
     this.type = type;
@@ -25,539 +42,239 @@ function createPowerup(type) {
     this.description.innerText = desc;
     elem.appendChild(this.description);
     this.image = elem;
-    console.log(this.image)
 }
 
-
-let powerUps = ['freeRoll', 'skipTurn', 'killAnyGotti'];
-
-
-function Game(totalPlayersCount) {
-    this.playerIndex = 0;
-    this.clickAble = 0;
-    this.movementAmount = 0;
-    this.gameEnded = 0
-    this.sixCount = 0
-    this.currentPlayerColor = ''
-    this.startRed = 40
-    this.startGreen = 1
-    this.startBlue = 27
-    this.startYellow = 14
-    this.greenStop = 51;
-    this.yellowStop = 12;
-    this.blueStop = 25;
-    this.redStop = 38;
-    this.greenEntry = 100;
-    this.yellowEntry = 110;
-    this.blueEntry = 120;
-    this.isPowerUpActive = 0;
-    this.totalPlayersCount = totalPlayersCount;
-    this.winners = [];
-    this.powerUps = [
-        [],
-        [],
-        [],
-        []
-    ];
-    this.redEntry = 130;
-    this.movableGottis = [];
-    this.availablePlayers = [0, 1, 2, 3]
-    this.hasMoved = 1;
-    this.noPlayerChange = 0;
-    this.gottisInside = [
-        ['red1', 'red2', 'red3', 'red4'],
-        ['green1', 'green2', 'green3', 'green4'],
-        ['yellow1', 'yellow2', 'yellow3', 'yellow4'],
-        ['blue1', 'blue2', 'blue3', 'blue4']
-    ]
-    this.gottisOutside = [
-        [],
-        [],
-        [],
-        []
-    ]
-    this.rollBox = document.querySelector(".roll");
-    this.startGame = function () {
-        if (this.totalPlayersCount == 2) {
-            this.availablePlayers = [0, 2];
-        } else if (this.totalPlayersCount == 3) {
-            this.availablePlayers = [0, 2, 3];
-        }
-        for (let i = 0; i <= this.availablePlayers.length; i++) {
-            if (this.availablePlayers.includes(i)) {
-                for (let j = 0; j < 4; j++) {
-                    let gotti = document.createElement("img");
-                    gotti.classList.add("Gotti");
-                    gotti.id = this.gottisInside[i][j];
-                    let col = gotti.id.slice(0, gotti.id.length - 1)
-                    gotti.src = './images/gottis/' + col + '.png ';
-                    let pnt = document.querySelectorAll(".home_" + col + ".inner_space");
-                    pnt[j].appendChild(gotti);
-                }
-            }
-        }
-        this.playerIndicator();
-    }
-    this.makeRoll = async function () {
-        this.hasMoved = 0;
-        if (this.gottisOutside[this.playerIndex].length == 0) {
-            this.movementAmount = this.biasedRandom(6, 75)
-        } else {
-            //sees if there is any players ahead and tries to cut it
-            let biases = [];
-            for (let i = 0; i < this.gottisOutside[this.playerIndex].length; i++) {
-                let pos = parseInt(parseInt(document.getElementById(this.gottisOutside[this.playerIndex][i]).parentNode.id));
-                for (let j = 1; j <= 6; j++) {
-                    let k = pos + j;
-                    if (k > 52) k = k % 52;
-                    let tempPosition = document.getElementById(k);
-                    let opps = tempPosition.querySelector(".Gotti") || tempPosition.querySelector(".powerUp");
-                    if (opps) {
-                        if (!opps.id.includes(this.currentPlayerColor)) {
-                            biases.push(j);
-                        }
-                    }
-                }
-            }
-            //cuts players with 30% chance
-            if (biases.length > 0) this.movementAmount = this.biasedRandom(biases, 30)
-            else this.movementAmount = this.biasedRandom(6, 20)
-        }
-        let gif = document.querySelector(".gif");
-        gif.src = './images/GIFS/' + this.movementAmount + ".gif";
-        await new Promise(r => setTimeout(r, 3000));
-        this.gameController();
-    }
-
-    this.playerIndicator = async function () {
-        this.hasMoved = 1;
-        if (this.sixCount != 1 && this.sixCount != 2 && this.noPlayerChange == 0) {
-            if (this.powerUps[this.playerIndex].length > 0) {
-                this.isPowerUpActive++;
-                if (this.isPowerUpActive === 1) {
-                    let pps = document.querySelector("." + this.currentPlayerColor + " .powerUps");
-                    pps.classList.add("focus")
-                    console.log("starting timeOut");
-                    this.clickAble = 0;
-                    this.hasMoved = 0;
-                    await new Promise(r => setTimeout(r, 5000));
-                    this.hasMoved = 1;
-                    console.log("timeout stopped");
-                    pps.classList.remove("focus")
-                }
-            }
-            this.isPowerUpActive = 0;
-            this.removeShakeAnimation();
-            this.playerIndex = (this.playerIndex + 1) % 4;
-            while (!this.availablePlayers.includes(this.playerIndex)) {
-                this.playerIndex = (this.playerIndex + 1) % 4;
-            }
-            this.clickAble = 1;
-            if (this.playerIndex == 0) this.currentPlayerColor = "red";
-            else if (this.playerIndex == 1) this.currentPlayerColor = "green";
-            else if (this.playerIndex == 2) this.currentPlayerColor = "yellow";
-            else if (this.playerIndex == 3) this.currentPlayerColor = "blue";
-            //adds highlight around home of current player
-            let all = document.querySelectorAll(".home .profilePic");
-            for (let i = 0; i < all.length; i++) {
-                if (all[i].className.includes("highLight")) {
-                    all[i].classList.remove("highLight");
-                    break;
-                }
-            }
-            let home = document.querySelector("." + this.currentPlayerColor + ".home .profilePic");
-            home.classList.add('highLight');
-        }
-    }
-
-
-    //does all the processing required to move a gotti and check if anything can be cut
-    this.moveGotti = async function (id) {
-        this.removeShakeAnimation();
-        if (this.hasMoved == 0) {
-            this.clickAble = 0;
-            this.noPlayerChange = 0;
-            let g = document.getElementById(id);
-            if (g.parentNode && g.parentNode.className.includes("inner_space")) {
-                this.getGottiOut(id)
-            } else {
-                let currPos = parseInt(g.parentNode.id);
-                let finalPos = currPos + this.movementAmount;
-                //for gottis inside home
-                let fd = '';
-                let fdGottis;
-                let i = currPos;
-                while (i < finalPos) {
-                    fd = document.getElementById(i);
-                    //if two gottis incountered in the way removes the classes that makes them smaller
-                    fdGottis = fd.getElementsByClassName("Gotti");
-                    if (fdGottis.length <= 2) {
-                        fd.classList.remove("twoGotti")
-                    } else if (fdGottis.length == 3) {
-                        fd.classList.remove("multipleGotti");
-                    }
-
-                    //moving to next position
-                    i++;
-                    if (i == 53) {
-                        i = i % 52;
-                        finalPos = finalPos % 52;
-                    }
-                    //if the gotti has reached the finish line
-                    if (i == 105 || i == 115 || i == 125 || i == 135) {
-                        i = finalPos;
-                        let ind = this.gottisOutside[this.playerIndex].indexOf(id);
-                        if (ind >= 0) this.gottisOutside[this.playerIndex].splice(ind, 1)
-                        let gameOver = document.querySelector(".finished_" + this.currentPlayerColor);
-                        //total game completed
-                        if (this.gottisOutside[this.playerIndex].length == 0 && this.gottisInside[this.playerIndex].length == 0) {
-                            let ind = this.availablePlayers.indexOf(this.playerIndex)
-                            this.availablePlayers.splice(ind, 1);
-                            this.winners.push(this.currentPlayerColor);
-                            if (this.availablePlayers.length == 1) {
-                                this.playerIndicator();
-                                this.winners.push(this.currentPlayerColor);
-                                this.gameOver();
-                            }
-                        } else {
-                            this.noPlayerChange = 1;
-                        }
-                        gameOver.appendChild(g);
-                    } else {
-                        fd = document.getElementById(i);
-                        fdGottis = fd.getElementsByClassName("Gotti");
-                        console.log(fd)
-                        //checks the position for any opponents or powerups
-                        await new Promise(r => setTimeout(r, 200))
-                        fd.appendChild(g);
-                        if (i == finalPos) this.checkFinalPosition(fd);
-
-                        //checks if they are at the stop positions
-                        if (this.currentPlayerColor == "red" && i == this.redStop) {
-                            finalPos = this.redEntry + finalPos - i - 1;
-                            i = this.redEntry - 1;
-                        } else if (this.currentPlayerColor == "green" && i == this.greenStop) {
-                            finalPos = this.greenEntry + finalPos - i - 1;
-                            console.log("new final position" + finalPos)
-                            i = this.greenEntry - 1;
-                        } else if (this.currentPlayerColor == "blue" && i == this.blueStop) {
-                            finalPos = this.blueEntry + finalPos - i - 1;
-                            i = this.blueEntry - 1;
-                        } else if (this.currentPlayerColor == "yellow" && i == this.yellowStop) {
-                            finalPos = this.yellowEntry + finalPos - i - 1;
-                            i = this.yellowEntry - 1;
-                        }
-                        //adds the classes to make the gotti smaller when there are multiple gottis
-                        if (fdGottis.length == 2) fd.classList.add("twoGotti")
-                        else if (fdGottis.length > 2) fd.classList.add("multipleGotti")
-                    }
-                }
-            }
-            this.hasMoved = 1;
-            await this.playerIndicator(this.noPlayerChange);
-            console.log("1")
-        }
-    }
-
-    this.checkFinalPosition = (fd) => {
-        //checks for opponents in the final position
-        let fdGottis = [];
-        if (!fd.className.includes("hasStar")) {
-            fdGottis = fd.getElementsByClassName("Gotti");
-            if (fdGottis.length > 1) {
-                for (let i = 0; i < fdGottis.length; i++) {
-                    if (!fdGottis[i].id.includes(this.currentPlayerColor)) {
-                        let killed = fdGottis[i].id;
-                        this.killGotti(killed);
-                        console.log(fdGottis)
-                        this.noPlayerChange = 1;
-                    } else {
-                        this.noPlayerChange = 0;
-                    }
-                }
-            }
-            //checks for powerUps in the final position
-        }
-        fdGottis = fd.getElementsByClassName("powerUp");
-        if (fdGottis.length > 0) {
-            console.log(fdGottis[0])
-            this.powerUps[this.playerIndex].push(fdGottis[0].className.split(" ")[1]);
-            document.querySelector(".box_" + this.currentPlayerColor + " .powerUps").appendChild(fdGottis[0]);
-            console.log(this.powerUps)
-        }
-    }
-
-    this.removeShakeAnimation = function () {
-        //remove shake effect
-        for (let i = 0; i < 4; i++) {
-            for (let j = 0; j < this.gottisOutside[i].length; j++) {
-                let gotti = document.querySelector("#" + this.gottisOutside[i][j]);
-                if (gotti) gotti.classList.remove("useMe")
-            }
-        }
-        for (let i = 0; i < 4; i++) {
-            for (let j = 0; j < this.gottisInside[i].length; j++) {
-                let gotti = document.querySelector("#" + this.gottisInside[i][j]);
-                if (gotti) gotti.classList.remove("useMe")
+sock.on("startGame", (powerUps, availablePlayers, gottisInside, playerIds) => {
+    GAMEDATA.playerIds = playerIds;
+    let playerSelectionDiv = document.querySelector("#startGameDialogue");
+    playerSelectionDiv.classList.add("hidden");
+    document.querySelector("#Canvas").classList.remove("hidden");
+    for (let i = 0; i <= availablePlayers.length; i++) {
+        if (availablePlayers.includes(i)) {
+            //adding profile pictures
+            let profilePic = document.createElement("img");
+            profilePic.src = "./images/pp.jpg"
+            profilePic.classList.add("profilePic");
+            console.log(CONSTANTS.defaultColors[i])
+            document.querySelector("." + CONSTANTS.defaultColors[i] + ".home").appendChild(profilePic)
+            //placing gottis in positions
+            for (let j = 0; j < 4; j++) {
+                let gotti = document.createElement("img");
+                gotti.classList.add("Gotti");
+                gotti.id = gottisInside[i][j];
+                let col = gotti.id.slice(0, gotti.id.length - 1)
+                gotti.src = './images/gottis/' + col + '.png ';
+                let pnt = document.querySelectorAll(".home_" + col + ".inner_space");
+                pnt[j].appendChild(gotti);
             }
         }
     }
-
-    document.addEventListener("click", async (e) => {
-        //if a gotti has been clicked
-        let gottiId = e.target.id;
-        if ((e.target.className == "gameOver" || e.target.className == "gif") && this.hasMoved == 1) {
-            this.hasMoved = 0;
-            this.movableGottis = [];
-            this.makeRoll();
-        } else if ((this.movableGottis.includes(gottiId) && this.clickAble === 1) || (gottiId && !isNaN(gottiId) && this.clickAble === 1)) {
-            //for kill any player powerUp
-            if (this.isPowerUpActive) {
-                let killed = e.target.id;
-                this.killGotti(killed);
-                this.playerIndicator();
-            } else {
-                console.log("GOtti id" + gottiId)
-                // if clicked in the holder then we have to pick the gotti and move by ourselves
-                if (!isNaN(gottiId)) {
-                    console.log("clicked in the box")
-                    let ch = e.target.querySelectorAll(".Gotti");
-                    console.log("clicked in the div with childrens");
-                    console.log(ch)
-                    if (ch) {
-                        for (let i = 0; i < ch.length; i++) {
-                            if (this.movableGottis.includes(ch[i].id)) {
-                                await this.moveGotti(ch[i]);
-                                break;
-                            }
-                        }
-                    }
-                } else await this.moveGotti(gottiId)
-            }
-        } else if (!e.target.className.includes("powerUps") && e.target.className.includes("powerUp") && e.target.parentNode.parentNode.className.includes(this.currentPlayerColor) && this.clickAble == 0 && this.hasMoved == 0) {
-            let ind = this.powerUps[this.playerIndex].indexOf(e.target.className.split(" ")[1]);
-            this.powerUps[this.playerIndex].splice(ind, 1);
-            let pps = document.querySelector("." + this.currentPlayerColor + " .powerUps");
-            this.hasMoved = 1;
-            pps.classList.remove("focus")
-            this.isPowerUpActive = 1;
-            if (e.target.className.includes("freeRoll")) {
-                console.log("enjoy your freeRoll");
-                this.noPlayerChange = 1;
-            } else if (e.target.className.includes("skipTurn")) {
-                console.log("skipping next playersTUrn");
-                this.playerIndex = (this.playerIndex + 1) % 4;
-                while (!this.availablePlayers.includes(this.playerIndex)) {
-                    this.playerIndex = (this.playerIndex + 1) % 4;
-                }
-                this.playerIndicator();
-            } else if (e.target.className.includes("killAnyGotti")) {
-                console.log("killing any player");
-                let count = 0;
-                this.clickAble = 1;
-                this.movableGottis = []
-                for (let i = 0; i < this.gottisOutside.length; i++) {
-                    for (let j = 0; j < this.gottisOutside[i].length; j++) {
-                        if (i != this.playerIndex) {
-                            count++;
-                            let gotti = document.querySelector("#" + this.gottisOutside[i][j]);
-                            this.movableGottis.push(this.gottisOutside[i][j])
-                            gotti.classList.add("useMe")
-                        }
-                    }
-                }
-                if (count == 0) return
-            }
-            e.target.parentNode.removeChild(e.target);
-            this.hasMoved = 1;
-            var killId = setTimeout(function () {
-                for (var i = killId; i > 0; i--) {
-                    console.log("killed " + i + " timeout")
-                    clearInterval(i);
-                }
-            }, 0);
-            console.log("timeout stopped");
+    //placing powerUps in positions
+    for (var key in powerUps) {
+        if (powerUps.hasOwnProperty(key)) {
+            let location = document.getElementById(key);
+            powerup = new createPowerup(powerUps[key]);
+            location.appendChild(powerup.image)
         }
+    }
+})
+
+
+sock.on("showMessage", (message, color) => {
+    showMessage(message, color)
+})
+
+sock.on("powerUpTime", async () => {
+    let pp = document.querySelector(".powerUps");
+    pp.classList.add("timer");
+    await new Promise(r => setTimeout(r, 5000))
+    pp.classList.remove("timer")
+
+})
+
+sock.on("playerIndicator", currentPlayerColor => {
+    let all = document.querySelectorAll(".home .profilePic");
+    for (let i = 0; i < all.length; i++) {
+        if (all[i].className.includes("highLight")) {
+            all[i].classList.remove("highLight");
+            break;
+        }
+    }
+    GAMEDATA.currentPlayerColor = currentPlayerColor;
+    let home = document.querySelector("." + currentPlayerColor + ".home .profilePic");
+    home.classList.add('highLight');
+})
+
+document.addEventListener("click", async (e) => {
+    //if a gotti has been clicked
+    let gottiId = e.target.id;
+    console.log(gottiId)
+    if ((e.target.className == "roll" || e.target.className == "gif")) {
+        sock.emit("roll", "hey");
+    } else if (!e.target.className.includes("powerUps") && e.target.className.includes("powerUp") && GAMEDATA.playerIds[GAMEDATA.playerIndex] == sock.id) {
+        sock.emit("powerUpClicked", e.target.className.replace("powerUp ", ""))
+    }
+    //if he clicks in the box instead
+    else if (gottiId.includes("sendMessage")) {
+        console.log("sendiong messahe")
+        sendMessage();
+    } else if (gottiId.includes("gif")) {
+        let src = gottiId.split(" ")[1];
+        src = "./images/GIFS/" + src + ".gif";
+        sendMessage(src);
+    } else if (/^\d*$/.test(gottiId)) {
+        try {
+            let ch = document.getElementById(gottiId).getElementsByClassName("Gotti");
+            if (ch[0]) {
+                console.log("yess there is a fucking child")
+                let ids = []
+                for (let i = 0; i < ch.length; i++) {
+                    ids.push(ch[i].id)
+                }
+                sock.emit("gottiClicked", ids);
+            }
+        } catch (err) {}
+    } else await sock.emit("gottiClicked", gottiId);
+
+})
+document.querySelector("#messageBox").addEventListener("keypress", (e) => {
+    if (e.keyCode == 13) {
+        e.preventDefault();
+        sendMessage();
+    }
+})
+
+sendMessage = (src) => {
+    let message;
+    if (src) {
+        message = src;
+    } else {
+        message = document.getElementById("messageBox").value;
+        document.getElementById("messageBox").value = "";
+    }
+    if (message) sock.emit("sendMessage", message)
+}
+
+sock.on("rollTheDice", async (movementAmount) => {
+    let gif = document.querySelector(".gif");
+    gif.src = './images/GIFS/' + movementAmount + ".gif";
+})
+
+
+sock.on("removeShakeAnimation", (gottisInside, gottisOutside) => {
+    removeShakeAnimation(gottisInside, gottisOutside)
+})
+
+removeShakeAnimation = (gottisInside, gottisOutside) => {
+    for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < gottisOutside[i].length; j++) {
+            let gotti = document.querySelector("#" + gottisOutside[i][j]);
+            if (gotti) gotti.classList.remove("useMe")
+        }
+    }
+    for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < gottisInside[i].length; j++) {
+            let gotti = document.querySelector("#" + gottisInside[i][j]);
+            if (gotti) gotti.classList.remove("useMe")
+        }
+    }
+}
+
+sock.on("moveGotti", async (id, playerIndex, positions, gottisInside, gottisOutside, result) => {
+    GAMEDATA.playerIndex = playerIndex;
+    removeShakeAnimation(gottisInside, gottisOutside);
+    let g = document.getElementById(id);
+    let fd;
+    for (let i = 0; i < positions.length - 1;) {
+        fd = document.getElementById(positions[i]);
+        //if two gottis incountered in the way removes the classes that makes them smaller
+        fdGottis = fd.getElementsByClassName("Gotti");
+        if (fdGottis.length <= 2) {
+            fd.classList.remove("twoGotti")
+        } else if (fdGottis.length == 3) {
+            fd.classList.remove("multipleGotti");
+        }
+        //if the gotti has reached the finish line
+        i++;
+        fd = document.getElementById(positions[i]);
+        fdGottis = fd.getElementsByClassName("Gotti");
+        //checks the position for any opponents or powerups
+        await new Promise(r => setTimeout(r, 200))
+        if (fdGottis.length === 2) fd.classList.add("twoGotti")
+        else if (fdGottis.length > 2) fd.classList.add("multipleGotti")
+        fd.appendChild(g);
+        if (i == positions.length - 1) {
+            if (result["killed"]) killGotti(result['killed']);
+            else if (result['powerUp']) addPowerUp(result['powerUp'])
+        }
+    }
+    if (GAMEDATA.playerIds[GAMEDATA.playerIndex] == sock.id) {
+        sock.emit("finishedMoving", "");
+    }
+})
+
+sock.on("getGottiOut", (id, position, gottisInside, gottisOutside) => {
+    removeShakeAnimation(gottisInside, gottisOutside);
+    fd = document.getElementById(position);
+    g = document.getElementById(id);
+    fd.appendChild(g);
+    //nikalda kheri position ma multiple gotti check
+    let fdLen = fd.getElementsByClassName("Gotti")
+    if (fdLen.length == 2) {
+        fd.classList.add("twoGotti")
+    } else if (fdLen.length > 2) {
+        fd.classList.add("multipleGotti")
+    }
+    sock.emit("finishedMoving", "");
+})
+
+sock.on("addPowerUp", (destinationID) => {
+    addPowerUp(destinationID)
+})
+
+addPowerUp = (destinationID) => {
+    let dest = document.getElementById(destinationID);
+    let child = dest.getElementsByClassName("powerUp")[0]
+    dest.removeChild(child);
+    if (GAMEDATA.playerIds[GAMEDATA.playerIndex] == sock.id) document.querySelector(".powerUps").appendChild(child);
+}
+
+sock.on("killGotti", (killed) => {
+    killGotti(killed);
+})
+
+killGotti = (killed) => {
+    let color = killed.substr(0, killed.length - 1);
+    let spots = document.getElementsByClassName("home_" + color);
+    for (let j = 0; j < spots.length; j++) {
+        if (spots[j].children.length == 0) {
+            spots[j].appendChild(document.querySelector("#" + killed))
+            break;
+        }
+    }
+}
+
+sock.on("gameFinished", () => {
+    let endGame = document.querySelector("#endGameDialogue");
+    for (let i = 0; i < totalPlayersCount; i++) {
+        let el = document.createElement("button");
+        el.innerHTML = this.winners[i];
+        endGame.children[0].appendChild(el);
+    }
+    endGame.classList.remove("hidden");
+    document.querySelector("#Canvas").classList.add("hidden");
+})
+
+sock.on("removePowerUp", type => {
+    let pp = document.querySelector(".powerUps");
+    pp.classList.remove("timer");
+    let p = document.querySelector(".powerUps");
+    let c = p.querySelector("." + type);
+    p.removeChild(c);
+})
+sock.on("addShakeAnimation", movableGottis => {
+    movableGottis.forEach(element => {
+        var d = document.getElementById(element);
+        d.classList.add("useMe")
     });
-
-    this.killGotti = (killed) => {
-        let col = killed.substr(0, killed.length - 1)
-        let spots = document.getElementsByClassName("home_" + col);
-        for (let j = 0; j < spots.length; j++) {
-            if (spots[j].children.length == 0) {
-                spots[j].appendChild(document.querySelector("#" + killed))
-                break;
-            }
-        }
-        //noPlayerChange gotti lai gottisOutside ko array ma append garni
-        let ind = -1;
-        let killedPlayerIndex = -1;
-        for (let j = 0; j < this.gottisOutside.length; j++) {
-            if (this.gottisOutside[j].indexOf(killed) != -1) {
-                ind = this.gottisOutside[j].indexOf(killed);
-                killedPlayerIndex = j;
-                break;
-            }
-        }
-        if (ind != -1) {
-            this.gottisOutside[killedPlayerIndex].splice(ind, 1)
-            this.gottisInside[killedPlayerIndex].push(killed)
-        }
-    }
-
-    this.getGottiOut = function (id) {
-        if (this.hasMoved == 0) {
-            //niskeko gotti lai gottisOutside ko array ma append garni
-            let ind = this.gottisInside[this.playerIndex].indexOf(id);
-            if (ind >= 0) this.gottisInside[this.playerIndex].splice(ind, 1)
-            this.gottisOutside[this.playerIndex].push(id)
-            let position = 0;
-            if (id.includes("red")) {
-                position = this.startRed
-            } else if (id.includes("green")) {
-                position = this.startGreen
-            } else if (id.includes("blue")) {
-                position = this.startBlue
-            } else {
-                console.log("yellow")
-                position = this.startYellow
-            }
-            fd = document.getElementById(position);
-            g = document.getElementById(id);
-            fd.appendChild(g);
-            //nikalda kheri position ma multiple gotti check
-            let fdLen = fd.getElementsByClassName("Gotti")
-            if (fdLen.length == 2) {
-                fd.classList.add("twoGotti")
-            } else if (fdLen.length > 2) {
-                fd.classList.add("multipleGotti")
-            }
-        }
-    }
-
-    //calculates biased random using the array and the probability sent
-    this.biasedRandom = (bias, degree) => {
-        if (!Array.isArray(bias)) {
-            let temp = bias;
-            bias = []
-            bias.push(temp);
-        }
-        let rand = Math.random().toFixed(2);
-        if (rand < (degree / 100)) {
-            rand = Math.floor(Math.random() * bias.length);
-            return bias[rand];
-        } else {
-            rand = Math.ceil(Math.random() * 6);
-            return rand;
-        }
-    }
-
-    //finds gottis that can be moved in each steps adds shake to gottis that can be moved
-    this.findMovableGotti = function () {
-        if (this.movementAmount == 6) {
-            for (let i = 0; i < this.gottisInside[this.playerIndex].length; i++) {
-                this.movableGottis.push(this.gottisInside[this.playerIndex][i])
-                let gotti = document.querySelector("#" + this.gottisInside[this.playerIndex][i]);
-                gotti.classList.add("useMe")
-            }
-        }
-        //checks for the home gottis
-        for (let i = 0; i < this.gottisOutside[this.playerIndex].length; i++) {
-            if (this.isOnFinishLine(this.gottisOutside[this.playerIndex][i])) {
-                this.movableGottis.push(this.gottisOutside[this.playerIndex][i])
-                let gotti = document.querySelector("#" + this.gottisOutside[this.playerIndex][i]);
-                gotti.classList.add("useMe")
-            }
-        }
-        console.log(this.movableGottis);
-    }
-
-    this.gameController = async function () {
-        this.hasMoved = 0;
-        if (this.movementAmount != 6) this.sixCount = 0;
-        else this.sixCount++;
-        if (this.sixCount != 3) {
-            //j aayepani shake animation halney code same nai hunxa
-            this.findMovableGotti();
-            this.noPlayerChange = 0;
-            if (this.movableGottis.length == 0) this.playerIndicator();
-            else if (this.movableGottis.length == 1) {
-                await this.moveGotti(this.movableGottis[0]);
-            } else {
-                if (this.gottisOutside[this.playerIndex].length == 0) await this.moveGotti(this.movableGottis[0]);
-                else {
-                    //checks if all the available gottis are in the same position
-                    let ids = []
-                    for (let i = 0; i < this.movableGottis.length; i++) {
-                        ids.push(document.getElementById(this.movableGottis[i]).parentNode.id)
-                    }
-                    if (ids.every((val, i, arr) => val === arr[0])) this.moveGotti(this.movableGottis[0])
-                    else this.clickAble = 1;
-                }
-            }
-        } else {
-            this.sixCount = 0;
-            this.playerIndicator();
-        }
-    }
-
-
-    //returns 1 if the gotti can move inside the finish line, 2 if the gotti aint in finish line and 0 if its in the finish line but cant make it
-    this.isOnFinishLine = function (id) {
-        let gotti = document.querySelector("#" + id);
-        let currPos = parseInt(gotti.parentNode.id);
-        if (currPos > 100) {
-            if ((currPos >= 100 && currPos + this.movementAmount < 106) || (currPos >= 110 && currPos + this.movementAmount < 116) || (currPos >= 120 && currPos + this.movementAmount < 126 || (currPos >= 130 && currPos + this.movementAmount < 136)) || currPos < 100) {
-                return 1;
-            } else {
-                return 0;
-            }
-        } else return 2;
-    }
-
-    this.gameOver = function () {
-        let endGame = document.querySelector("#endGameDialogue");
-        for (let i = 0; i < totalPlayersCount; i++) {
-            let el = document.createElement("button");
-            el.innerHTML = this.winners[i];
-            endGame.children[0].appendChild(el);
-        }
-        endGame.classList.remove("hidden");
-        document.querySelector("#Canvas").classList.add("hidden");
-    }
-}
-
-let playerSelectionDiv = document.querySelector("#startGameDialogue");
-document.querySelector("#playAgain").addEventListener("click", e => {
-    document.querySelector("#endGameDialogue").classList.add("hidden");
-    playerSelectionDiv.classList.remove("hidden");
 })
-playerSelectionDiv.addEventListener("click", e => {
-    let totalPlayersCount = 4;
-    if (e.target.id.includes("players")) {
-        if (e.target.id == "2players") totalPlayersCount = 2
-        else if (e.target.id == '3players') totalPlayersCount = 3;
-        else if (e.target.id == '4players') totalPlayersCount = 4;
-        let g = {};
-        g = new Game(totalPlayersCount);
-        //placing powerups in the board
-        let places = [];
-        let noOfPowerUps = 20 + Math.ceil(Math.random() * 4)
-        for (i = 0; i < noOfPowerUps; i++) {
-            let loc = Math.ceil(Math.random() * 52);
-            if (!places.includes(loc) && loc != 40 && loc != 1 && loc != 48 && loc != 14 && loc != 9 && loc != 22 && loc != 27 && loc != 35) {
-                let location = document.getElementById(loc);
-                let powerup = Math.floor(Math.random() * powerUps.length);
-                powerup = powerUps[powerup];
-                powerup = new createPowerup(powerup);
-                location.appendChild(powerup.image)
-                places.push(loc)
-            }
-        }
-        playerSelectionDiv.classList.add("hidden");
-        document.querySelector("#Canvas").classList.remove("hidden");
-        g.startGame();
-    }
-})
-
-// include chat ability first
