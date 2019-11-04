@@ -93,7 +93,7 @@ sock.on("powerUpTime", async () => {
 
 })
 
-sock.on("playerIndicator", currentPlayerColor => {
+sock.on("playerIndicator", (currentPlayerColor, id) => {
     console.log("adding highlight");
     let all = document.querySelectorAll(".home .profilePic");
     for (let i = 0; i < all.length; i++) {
@@ -105,13 +105,20 @@ sock.on("playerIndicator", currentPlayerColor => {
     GAMEDATA.currentPlayerColor = currentPlayerColor;
     let home = document.querySelector("." + currentPlayerColor + ".home .profilePic");
     home.classList.add('highLight');
+    if (sock.id === id) {
+        document.querySelector(".gif").classList.add("heartBeat");
+    }
+})
+
+sock.on("removeGottiShake", () => {
+    document.querySelector(".gif").classList.remove("heartBeat");
 })
 
 document.addEventListener("click", async (e) => {
     //if a gotti has been clicked
     let gottiId = e.target.id;
     console.log(gottiId)
-    if ((e.target.className == "roll" || e.target.className == "gif")) {
+    if ((e.target.className == "roll" || e.target.className.includes("gif"))) {
         sock.emit("roll", "hey");
     } else if (!e.target.className.includes("powerUps") && e.target.className.includes("powerUp") && GAMEDATA.playerIds[GAMEDATA.playerIndex] == sock.id) {
         sock.emit("powerUpClicked", e.target.className.replace("powerUp ", ""))

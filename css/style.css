@@ -567,6 +567,10 @@ body {
     background: transparent;
 }
 
+.heartBeat {
+    animation: heartBeat 1.2s ease-in-out infinite;
+}
+
 .hidden_gifs img {
     height: 20px;
     width: 20px;

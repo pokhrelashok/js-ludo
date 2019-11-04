@@ -16,7 +16,10 @@ let port = process.env.PORT || 8000;
 
 io.on('connection', async (sock) => {
     sock.on("roll", () => {
-        if (g.hasMoved == 1 && g.players[g.playerIndex].id === sock.id) g.makeRoll();
+        if (g.hasMoved == 1 && g.players[g.playerIndex].id === sock.id) {
+            g.players[g.playerIndex].emit("removeGottiShake", "");
+            g.makeRoll();
+        }
     })
     sock.on("gottiClicked", (id) => {
         if (g.isPowerUpRunning && g.movableGottis.includes(id)) {

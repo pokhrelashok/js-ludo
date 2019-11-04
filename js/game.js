@@ -177,7 +177,7 @@ function Game(players) {
                 else if (this.playerIndex == 3) this.currentPlayerColor = "blue";
                 //adds highlight around home of current player
                 this.players.forEach(socket => {
-                    if (socket) socket.emit("playerIndicator", this.currentPlayerColor)
+                    if (socket) socket.emit("playerIndicator", this.currentPlayerColor, this.players[this.playerIndex].id)
                 });
             }
         }
