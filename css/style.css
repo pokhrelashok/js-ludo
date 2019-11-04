@@ -566,3 +566,9 @@ body {
     height: 0px;
     background: transparent;
 }
+
+.hidden_gifs img {
+    height: 20px;
+    width: 20px;
+    display: inline-block;
+}
