@@ -5,6 +5,8 @@
     <title>Ludo</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/animate.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css"
+        integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous">
 </head>
 
 <body>
@@ -27,8 +29,7 @@
     <div id="Canvas" class="hidden">
         <section class="box box_red">
             <div class="red home">
-                <div class="profilePic"></div>
-                <div class="powerUps">
+                <div class="message">
                 </div>
                 <div class="home_red inner_space">
                 </div>
@@ -50,12 +51,12 @@
                 <div class="vertical_green" id="49"></div>
                 <div class="vertical_green finalPath" id="100"></div>
                 <div class="vertical_green finalPath hasStar" id="1">
-                    <img class='star' src="./images/star.png">
+                    <img class='star' onclick="return false" src="./images/star.png">
                 </div>
             </article>
             <article>
                 <div class="vertical_green finalPath hasStar" id="48">
-                    <img class='star' src="./images/star.png">
+                    <img class='star' onclick="return false" src="./images/star.png">
                 </div>
                 <div class="vertical_green finalPath " id="101"></div>
                 <div class="vertical_green" id="2">
@@ -81,8 +82,8 @@
         </section>
         <section class="box box_green">
             <div class="green home">
-                <div class="profilePic"></div>
-                <div class="powerUps"></div>
+                <div class="message">
+                </div>
                 <div class="home_green inner_space">
                 </div>
                 <div class="home_green inner_space">
@@ -101,7 +102,7 @@
             </article>
             <article>
                 <div class="horizontal_red finalPath hasStar" id="40">
-                    <img class='star' src="./images/star.png">
+                    <img class='star' onclick="return false" src="./images/star.png">
                 </div>
                 <div class="horizontal_red finalPath" id="130">
                 </div>
@@ -114,7 +115,7 @@
                 <div class="horizontal_red finalPath" id="131">
                 </div>
                 <div class="horizontal_red finalPath hasStar" id="35">
-                    <img class='star' src="./images/star.png">
+                    <img class='star' onclick="return false" src="./images/star.png">
                 </div>
             </article>
             <article>
@@ -142,7 +143,6 @@
                 <div class="finished_red multipleGotti">
                 </div>
                 <div class="gameOver">
-                    <img class='gif' src='./images/initial.png'> </img>
                 </div>
                 <div class="finished_yellow multipleGotti">
                 </div>
@@ -169,7 +169,7 @@
             </article>
             <article>
                 <div class="horizontal_yellow finalPath hasStar" id="9">
-                    <img class='star' src="./images/star.png">
+                    <img class='star' onclick="return false" src="./images/star.png">
                 </div>
                 <div class="horizontal_yellow finalPath" id="111"></div>
                 <div class="horizontal_yellow" id="15"></div>
@@ -179,7 +179,7 @@
                 </div>
                 <div class="horizontal_yellow finalPath" id="110"></div>
                 <div class="horizontal_yellow finalPath hasStar" id="14">
-                    <img class='star' src="./images/star.png">
+                    <img class='star' onclick="return false" src="./images/star.png">
                 </div>
             </article>
             <article>
@@ -190,8 +190,7 @@
         </section>
         <section class="box box_blue">
             <div class="blue home">
-                <div class="profilePic"></div>
-                <div class="powerUps">
+                <div class="message">
                 </div>
                 <div class="home_blue inner_space">
                 </div>
@@ -223,12 +222,12 @@
                 <div class="vertical_blue" id="28"></div>
                 <div class="vertical_blue finalPath" id="121"></div>
                 <div class="vertical_blue finalPath hasStar" id="22">
-                    <img class='star' src="./images/star.png">
+                    <img class='star' onclick="return false" src="./images/star.png">
                 </div>
             </article>
             <article>
                 <div class="vertical_blue finalPath hasStar" id="27">
-                    <img class='star' src="./images/star.png">
+                    <img class='star' onclick="return false" src="./images/star.png">
                 </div>
                 <div class="vertical_blue finalPath" id="120"></div>
                 <div class="vertical_blue " id="23"></div>
@@ -241,9 +240,7 @@
         </section>
         <section class="box box_yellow">
             <div class="yellow home">
-                <div class="profilePic"></div>
-
-                <div class="powerUps"></div>
+                <div class="message"></div>
                 <div class="home_yellow inner_space">
                 </div>
                 <div class="home_yellow inner_space">
@@ -255,10 +252,33 @@
             </div>
         </section>
     </div>
-    <div class="messages">
+    <div class="properties">
+        <div class="powerUps">
+            <h2>POWERUPS!</h2>
+        </div>
+        <div class="roll">
+            <img class='gif' src='./images/initial.png'> </img>
+        </div>
+        <div class="messages">
+            <div class="emojis">
+                <img id="gif angry" src="./images/GIFS/angry.gif" alt="">
+                <img id="gif blown" src="./images/GIFS/blown.gif" alt="">
+                <img id="gif crazy" src="./images/GIFS/crazy.gif" alt="">
+                <img id="gif poo" src="./images/GIFS/poo.gif" alt="">
+                <img id="gif oh_no" src="./images/GIFS/oh_no.gif" alt="">
+
+            </div>
+            <div class="dm">
+                <textarea id="messageBox" placeholder="Type message.." name="msg" sc required></textarea>
+                <button type="submit" class="btn">
+                    <i id="sendMessage" class="fas fa-chevron-circle-right"></i>
+                </button>
+            </div>
+        </div>
     </div>
 </body>
 <script src="/socket.io/socket.io.js"></script>
+<script src="js/constants.js"></script>
 <script src="js/client.js"></script>
 
 </html>

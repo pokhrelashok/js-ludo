@@ -11,23 +11,24 @@ body {
     flex-wrap: wrap;
     margin: 0 auto;
     display: flex;
-    width: 800px;
-    height: 800px;
-
+    width: 500px;
+    height: 500px;
 }
 
 #startGameDialogue,
 #endGameDialogue {
-    animation: bounceIn 0.8s ease-in-out;
+    animation: bounceIn 1s ease-in-out;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.1);
     text-align: center;
     flex-wrap: wrap;
     margin: 0 auto;
     display: flex;
     justify-content: space-around;
-    width: 400px;
+    width: 420px;
+    height: 420px;
     margin-top: 80px;
-    padding: 80px;
+    padding: 10px;
+    box-sizing: border-box;
     border-radius: 10%;
 }
 
@@ -44,13 +45,12 @@ body {
     display: block;
     margin: 14px auto;
     border-radius: 12px;
-    transition: all 0.2s ease-in-out;
+    transition: all 0.4s ease-in-out;
     color: #0c2461;
 }
 
 #startGameDialogue button:hover,
 #endGameDialogue button:hover {
-    animation: 1s rubberBand ease;
     color: #ecf0f1;
     background-color: #0c2461;
 }
@@ -182,17 +182,6 @@ body {
     width: 16.66666666%;
 }
 
-.gif {
-    width: 120%;
-    height: 120%;
-    margin: auto;
-    top: -10%;
-    left: -10%;
-    position: absolute;
-    cursor: pointer;
-}
-
-
 #Canvas .path div {
     position: relative;
     display: flex;
@@ -215,14 +204,13 @@ body {
 
 .profilePic {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-    height: 32%;
-    width: 32%;
+    height: 35%;
+    width: 35%;
     border-radius: 100%;
     position: absolute;
     top: -20px;
     left: -20px;
     z-index: 2;
-    background-image: url('../images/pp.jpg');
     background-size: cover;
     transition: all .5s ease-in-out;
 }
@@ -241,36 +229,49 @@ body {
 }
 
 
-.powerUps {
+.message p,
+.message img {
+    padding: 4px;
     display: flex;
     flex-direction: row;
     position: absolute;
-    width: 70%;
     top: 0;
-    height: 42px;
     background-color: #ecf0f1;
     border-radius: 4px;
     border: 1.5px black solid;
-    left: 60px;
-    top: -20px;
+    left: 25%;
+    top: -50px;
     z-index: 1;
     transition: all 0.4s ease-in-out;
+    font-size: 16px;
+    animation: ease-in-out bounceInLeft 1s;
 }
 
-.box_green .powerUps,
-.box_yellow .powerUps {
+.message img {
+    background-color: transparent;
+    border: none;
+    height: 60px;
+}
+
+
+#Canvas .box_green .message p,
+#Canvas .box_green .message img,
+#Canvas .yellow .message img,
+#Canvas .box_yellow .message p {
+    animation: bounceInRight 0.5s;
     left: auto;
-    right: 60px;
+    right: 25%;
 }
 
-.box_blue .powerUps,
-.box_yellow .powerUps {
-    bottom: -20px;
+#Canvas .box_blue .message p,
+#Canvas .box_blue .message img,
+#Canvas .box_yellow .message img,
+#Canvas .box_yellow .message p {
+    bottom: -50px;
     top: auto;
 }
 
-
-.powerUps div {
+#Canvas .message div {
     cursor: pointer;
     position: relative;
     box-sizing: border-box;
@@ -279,33 +280,6 @@ body {
     transform-origin: center;
 }
 
-
-
-.powerUps .powerUp {
-    cursor: pointer;
-    position: relative;
-    box-sizing: border-box;
-    width: 40px;
-    transition: all 0.2s ease-out;
-    transform-origin: center;
-}
-
-.focus {
-    transform-origin: center;
-    transform: scale(1.12);
-}
-
-.focus::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 99%;
-    width: 100%;
-    border-radius: 4px;
-    background-color: #f8e2a5;
-    animation: linear 5s timer;
-}
 
 
 
@@ -335,20 +309,38 @@ body {
     display: none;
     position: absolute;
     background-color: #ecf0f1;
+    border: 2px #f8e2a5 solid;
     padding: 4px;
     border-radius: 8px;
-    top: -45px;
+    top: -10%;
     left: 0px;
     width: 240px;
     font-size: 15px;
     transform-origin: bottom left;
 }
 
+.timer {
+    z-index: 4;
+    position: relative;
+}
+
+.timer::after {
+    z-index: 4;
+    content: "";
+    position: absolute;
+    top: 84%;
+    left: 0;
+    height: 4px;
+    width: 0%;
+    background-color: red;
+    animation: fillWidth 5s ease-in-out;
+}
+
 
 .box_blue .powerUps p,
 .box_yellow .powerUps p {
     transform-origin: top left;
-    bottom: -45px;
+    bottom: -20%;
     top: auto;
 }
 
@@ -359,20 +351,23 @@ body {
 }
 
 
-#Canvas .path div div {
+#Canvas .path .powerUp {
+    position: absolute;
+    top: 10%;
     background-color: transparent;
     border: none;
     z-index: 8;
-    display: inline-block;
-    margin: auto !important;
-    height: 82% !important;
-    width: 82% !important;
+    height: 78% !important;
+    width: 78% !important;
 }
 
 #Canvas .path div p {
     display: none;
 }
 
+.tada {
+    animation: tada 1s ease-in-out infinite;
+}
 
 
 .Gotti {
@@ -429,24 +424,143 @@ body {
 
 
 .twoGotti .Gotti {
-    height: 34px !important;
+    height: 65% !important;
 }
 
 .multipleGotti .Gotti {
-    height: 20px !important;
+    height: 25% !important;
 }
 
 .hidden {
     display: none !important;
 }
 
-.messages {
+.properties {
     margin: 0 auto;
     position: relative;
     height: 100px;
     width: 600px;
     overflow-y: scroll;
-    background-color: #ecf0f1;
-    padding: 8px;
+    animation: bounceIn 1s ease-in-out;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    background: #ecf0f1;
     list-style: none;
+    margin-top: 28px;
+    border-radius: 20px;
+    display: flex;
+}
+
+.properties li {
+    font-size: 16px;
+    padding: 4px;
+    box-sizing: border-box;
+    display: block;
+    margin-bottom: 4px;
+    background: white;
+    border-radius: 4px;
+}
+
+.innerHome {
+    width: 0;
+    height: 0;
+    border-top: 50px solid #2ecc71;
+    border-left: 50px solid #e74c3c;
+    border-right: 50px solid #eabd43;
+    border-bottom: 50px solid #3498db;
+
+}
+
+.properties .powerUps,
+.properties .messages {
+    z-index: 4;
+    text-align: center;
+    width: 40%;
+    border-radius: 8px;
+}
+
+
+.properties .powerUps h2 {
+    padding: 0;
+    margin: 0;
+    margin-top: 6px;
+}
+
+
+.properties .powerUps .powerUp {
+    margin-top: 10px;
+    margin-right: 4px;
+    cursor: pointer;
+    z-index: 8;
+    display: inline-block;
+    border: 1px red solid;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+}
+
+.properties .roll {
+    overflow: hidden;
+    border-radius: 8px;
+    width: 20%;
+}
+
+.gif {
+    z-index: 100;
+    width: 110%;
+    margin: auto;
+    margin-top: -20%;
+    margin-left: -16%;
+    cursor: pointer;
+}
+
+.messages div {
+    width: 100%;
+    height: 50%;
+}
+
+.emojis img {
+    cursor: pointer;
+    margin: 2px;
+    width: 33px;
+    height: 33px;
+}
+
+.dm {
+    position: relative;
+}
+
+.dm textarea {
+    outline: none;
+    font-size: 14px;
+    border-radius: 8px;
+    box-sizing: border-box;
+    padding: 4px;
+    height: 28px;
+    width: 100%;
+    resize: none;
+}
+
+.dm button {
+    outline: none;
+    position: absolute;
+    border: none;
+    right: -8px;
+    top: -6px;
+    height: 40px;
+    width: 40px;
+    border-radius: 20px;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.dm button i {
+    color: #3498db;
+    font-size: 28px;
+}
+
+::-webkit-scrollbar {
+    width: 0px;
+    height: 0px;
+    background: transparent;
 }

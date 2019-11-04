@@ -4,7 +4,7 @@ const http = require('http')
 const socket = require('socket.io')
 const server = http.createServer(app);
 const clientPath = `${__dirname}/../`
-const Game = require("./game.js")
+const Game = require("./js/game.js")
 app.use(express.static(clientPath))
 server.on('error', (err) => {
     console.log('server error', err)
