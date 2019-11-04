@@ -12,7 +12,7 @@ server.on('error', (err) => {
 const io = socket(server);
 let CONNECTED_SOCKETS = [];
 let g = null;
-let port = process.env.port || 8000;
+let port = process.env.PORT || 8000;
 
 io.on('connection', async (sock) => {
     sock.on("roll", () => {
