@@ -12,6 +12,7 @@ server.on('error', (err) => {
 const io = socket(server);
 let CONNECTED_SOCKETS = [];
 let g = null;
+let port = process.env.port || 8000;
 
 io.on('connection', async (sock) => {
     sock.on("roll", () => {
@@ -103,8 +104,8 @@ io.on('connection', async (sock) => {
         CONNECTED_SOCKETS.push(sock);
     }
 })
-server.listen(8000, () => {
-    console.log('server starrted on port 8000')
+server.listen(port, () => {
+    console.log('server starrted on port ' + port)
 })
 
 //only one powerUp available in one turn, the powerup time shows
