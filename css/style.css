@@ -385,6 +385,7 @@ body {
 }
 
 .roll {
+    position: relative;
     font-size: 20px;
     color: #ecf0f1;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
@@ -506,11 +507,12 @@ body {
 }
 
 .gif {
+    position: absolute;
+    top: -10%;
+    margin: auto auto;
     z-index: 100;
-    width: 110%;
+    width: 98%;
     margin: auto;
-    margin-top: -20%;
-    margin-left: -16%;
     cursor: pointer;
 }
 

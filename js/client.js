@@ -49,6 +49,7 @@ sock.on("startGame", (powerUps, availablePlayers, gottisInside, playerIds) => {
     let playerSelectionDiv = document.querySelector("#startGameDialogue");
     playerSelectionDiv.classList.add("hidden");
     document.querySelector("#Canvas").classList.remove("hidden");
+    document.querySelector(".properties").classList.remove("hidden");
     for (let i = 0; i <= availablePlayers.length; i++) {
         if (availablePlayers.includes(i)) {
             //adding profile pictures
