@@ -212,6 +212,9 @@ function Game(players) {
             console.log("oppositions")
             console.log(this.oppPositions)
             console.log("oppositions")
+            console.log("powerUps positions")
+            console.log(this.powerUpsLocation)
+            console.log("powerUps positions")
             console.log("--------------------------------------------")
             //as he just rolled he still has to move his gotti
             // await this.players[this.playerIndex].emit("calculateAllGottiPos", this.gottisOutside);
