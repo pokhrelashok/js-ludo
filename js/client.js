@@ -93,6 +93,7 @@ sock.on("powerUpTime", async () => {
 })
 
 sock.on("playerIndicator", currentPlayerColor => {
+    console.log("adding highlight");
     let all = document.querySelectorAll(".home .profilePic");
     for (let i = 0; i < all.length; i++) {
         if (all[i].className.includes("highLight")) {

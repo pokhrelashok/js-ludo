@@ -143,7 +143,7 @@ function Game(players) {
         this.hasMoved = 1;
         this.movableGottis = [];
         this.movableGottisPositions = [];
-        if (this.sixCount != 1 && this.sixCount != 2 && this.noPlayerChange == 0) {
+        if (this.sixCount == 0 && this.noPlayerChange == 0) {
             if (this.powerUps[this.playerIndex].length > 0) {
                 this.isPowerUpActive++;
                 if (this.isPowerUpActive == 1) {
@@ -157,25 +157,25 @@ function Game(players) {
                     this.hasMoved = 1;
                     //powerups bata focus hata vanera code han}
                 }
-                if (this.noPlayerChange == 0) {
-                    this.isPowerUpActive = 0;
-                    this.players.forEach(s => {
-                        if (s) s.emit("removeShakeAnimation", this.gottisInside, this.gottisOutside);
-                    });
+            }
+            if (this.noPlayerChange == 0) {
+                this.isPowerUpActive = 0;
+                this.players.forEach(s => {
+                    if (s) s.emit("removeShakeAnimation", this.gottisInside, this.gottisOutside);
+                });
+                this.playerIndex = (this.playerIndex + 1) % 4;
+                while (!this.allGottis.hasOwnProperty(this.playerIndex)) {
                     this.playerIndex = (this.playerIndex + 1) % 4;
-                    while (!this.allGottis.hasOwnProperty(this.playerIndex)) {
-                        this.playerIndex = (this.playerIndex + 1) % 4;
-                    }
-                    await new Promise(r => setTimeout(r, 300));
-                    if (this.playerIndex == 0) this.currentPlayerColor = "red";
-                    else if (this.playerIndex == 1) this.currentPlayerColor = "green";
-                    else if (this.playerIndex == 2) this.currentPlayerColor = "yellow";
-                    else if (this.playerIndex == 3) this.currentPlayerColor = "blue";
-                    //adds highlight around home of current player
-                    this.players.forEach(socket => {
-                        if (socket) socket.emit("playerIndicator", this.currentPlayerColor)
-                    });
                 }
+                await new Promise(r => setTimeout(r, 300));
+                if (this.playerIndex == 0) this.currentPlayerColor = "red";
+                else if (this.playerIndex == 1) this.currentPlayerColor = "green";
+                else if (this.playerIndex == 2) this.currentPlayerColor = "yellow";
+                else if (this.playerIndex == 3) this.currentPlayerColor = "blue";
+                //adds highlight around home of current player
+                this.players.forEach(socket => {
+                    if (socket) socket.emit("playerIndicator", this.currentPlayerColor)
+                });
             }
         }
         this.makeRoll = async function () {
