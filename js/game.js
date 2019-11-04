@@ -152,6 +152,9 @@ function Game(players) {
                     CONSTANTS.timer = '';
                     //indicate powerUps that can be used
                     this.players[this.playerIndex].emit("powerUpTime", "");
+                    this.players.forEach(socket => {
+                        if (socket) socket.emit("showMessage", "Powerup Time", this.currentPlayerColor)
+                    });
                     CONSTANTS.timer = new Sleep(5000);
                     await CONSTANTS.timer.wait();
                     this.hasMoved = 1;
