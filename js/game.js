@@ -427,8 +427,8 @@ function Game(players) {
         }
     }
 
+}
 
+module.exports = Game;
 
-    module.exports = Game;
-
-    //tyo kill any players marna milney namilney fix garna paryo ni hana
+//tyo kill any players marna milney namilney fix garna paryo ni hana
