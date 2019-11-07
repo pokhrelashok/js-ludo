@@ -10,7 +10,13 @@
 </head>
 
 <body>
-    <div id="startGameDialogue">
+    <div class="playerName">
+        <input type="text" placeholder="Enter your name">
+        <p>Press Enter To Start!</p>
+    </div>
+    <div class="waitingForPlayers hidden">
+    </div>
+    <div id="startGameDialogue" class="hidden">
         <div>
             <h1>Welcome to the game of LUNO!</h1>
             <h2>How many of you guys are playing?</h2>
@@ -286,6 +292,9 @@
         <img src="./images/GIFS/6.gif" alt="">
     </div>
 </body>
+<script>
+    document.querySelector(".playerName input").focus();
+</script>
 <script src="/socket.io/socket.io.js"></script>
 <script src="js/constants.js"></script>
 <script src="js/client.js"></script>

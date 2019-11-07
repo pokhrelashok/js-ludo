@@ -44,23 +44,54 @@ function createPowerup(type) {
     this.image = elem;
 }
 
-sock.on("startGame", (powerUps, availablePlayers, gottisInside, playerIds) => {
+document.querySelector(".playerName").addEventListener("keypress", (e) => {
+    if (e.keyCode == 13) {
+        e.preventDefault();
+        enterGame();
+    }
+})
+
+sock.on("nameReceived", () => {
+    document.querySelector("#startGameDialogue").classList.remove("hidden");
+    document.querySelector(".playerName").classList.add("hidden");
+})
+
+sock.on("waitForPlayers", (num) => {
+    let p = document.createElement("p");
+    p.innerText = "WAITING FOR " + num + " PLAYERS!"
+    document.querySelector(".waitingForPlayers").classList.remove("hidden");
+    document.querySelector("#startGameDialogue").classList.add("hidden");
+    document.querySelector(".waitingForPlayers").appendChild(p);
+})
+enterGame = () => {
+    let name = document.querySelector(".playerName input").value.toUpperCase();
+    document.querySelector("#startGameDialogue").classList.remove("hidden");
+    document.querySelector(".playerName").classList.add("hidden");
+    sock.emit("playerName", name);
+}
+
+sock.on("startGame", (powerUps, availablePlayers, gottisInside, playerIds, names) => {
+    document.querySelector("#startGameDialogue").classList.add("hidden");
+    document.querySelector(".waitingForPlayers").classList.add("hidden")
     GAMEDATA.playerIds = playerIds;
-    let playerSelectionDiv = document.querySelector("#startGameDialogue");
-    playerSelectionDiv.classList.add("hidden");
     document.querySelector("#Canvas").classList.remove("hidden");
     document.querySelector(".properties").classList.remove("hidden");
     for (let i = 0; i <= availablePlayers.length; i++) {
         if (availablePlayers.includes(i)) {
             //adding profile pictures
             let profilePic = document.createElement("img");
+            let name = document.createElement("h1");
+            name.innerText = names[i]
             profilePic.src = "./images/pp.jpg"
             profilePic.classList.add("profilePic");
             console.log(CONSTANTS.defaultColors[i])
             document.querySelector("." + CONSTANTS.defaultColors[i] + ".home").appendChild(profilePic)
+            document.querySelector("." + CONSTANTS.defaultColors[i] + ".home").appendChild(name)
             //placing gottis in positions
             for (let j = 0; j < 4; j++) {
                 let gotti = document.createElement("img");
+
+                name.classList.add("name")
                 gotti.classList.add("Gotti");
                 gotti.id = gottisInside[i][j];
                 let col = gotti.id.slice(0, gotti.id.length - 1)
@@ -117,8 +148,10 @@ sock.on("removeGottiShake", () => {
 document.addEventListener("click", async (e) => {
     //if a gotti has been clicked
     let gottiId = e.target.id;
-    console.log(gottiId)
-    if ((e.target.className == "roll" || e.target.className.includes("gif"))) {
+    if (gottiId.includes("players")) {
+        sock.emit("joinGame", gottiId);
+    } else if ((e.target.className == "roll" || e.target.className.includes("gif"))) {
+        console.log("roll please")
         sock.emit("roll", "hey");
     } else if (!e.target.className.includes("powerUps") && e.target.className.includes("powerUp") && GAMEDATA.playerIds[GAMEDATA.playerIndex] == sock.id) {
         sock.emit("powerUpClicked", e.target.className.replace("powerUp ", ""))

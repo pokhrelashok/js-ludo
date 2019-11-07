@@ -1,9 +1,29 @@
 /* change this to vw and make it scale better */
 
 body {
-    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-weight: lighter;
     /* background-image: url("../bg.jpg"); */
     /* background-size: cover; */
+}
+
+.playerName,
+.waitingForPlayers {
+    text-align: center;
+    margin: 0 auto;
+    margin-top: 20%;
+    font-size: 20px;
+}
+
+.playerName input {
+    outline: none;
+    height: 40px;
+    box-sizing: border-box;
+    width: 250px;
+    background-color: #ecf0f1;
+    border: 2px #3498db solid;
+    border-radius: 8px;
+    padding: 8px;
 }
 
 #Canvas {
@@ -215,6 +235,14 @@ body {
     transition: all .5s ease-in-out;
 }
 
+.name {
+    position: absolute;
+    top: 95%;
+    left: 30%;
+    font-weight: lighter;
+    font-size: 18px;
+}
+
 
 .box_green .profilePic,
 .box_yellow .profilePic {
@@ -222,10 +250,22 @@ body {
     right: -20px;
 }
 
+.box_blue .name,
+.box_green .name {
+    left: auto;
+    right: 30%;
+}
+
 .box_blue .profilePic,
 .box_yellow .profilePic {
     top: auto;
     bottom: -20px;
+}
+
+.box_red .name,
+.box_blue .name {
+    top: auto;
+    bottom: 95%;
 }
 
 
