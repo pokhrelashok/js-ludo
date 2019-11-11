@@ -278,20 +278,35 @@ body {
 
 .message p,
 .message img {
+    color: #ecf0f1;
     padding: 4px;
     display: flex;
     flex-direction: row;
     position: absolute;
     top: 0;
-    background-color: #ecf0f1;
+    background-color: black;
     border-radius: 4px;
     border: 1.5px black solid;
-    left: 25%;
+    left: 20%;
     top: -50px;
     z-index: 1;
     transition: all 0.4s ease-in-out;
     font-size: 16px;
-    animation: ease-in-out fadeInLeft 1.2s;
+    animation: ease-in-out fadeIn 0.8s;
+}
+
+
+.message p:before {
+    content: ' ';
+    position: absolute;
+    width: 0;
+    height: 0;
+    left: auto;
+    right: -12px;
+    top: 0;
+    bottom: auto;
+    border: 10px solid;
+    border-color: black transparent transparent transparent;
 }
 
 .message img {
