@@ -12,6 +12,9 @@ app.use(express.static(clientPath))
 server.on('error', (err) => {
     console.log('server error', err)
 })
+const CONSTANTS = {
+    defaultColors: ['red', 'green', 'yellow', 'blue']
+}
 const io = socket(server);
 let port = process.env.PORT || 8000;
 let playersInGame = {};
@@ -104,6 +107,10 @@ io.on('connection', async (sock) => {
 
         }
     })
+
+    sock.on("disconnect", () => {
+        console.log("player disconnected!")
+    })
     sock.on("playerName", name => {
         let p = new Player(name, sock);
         playersInGame[sock.id] = p;
@@ -120,8 +127,53 @@ io.on('connection', async (sock) => {
             gameLobby[num].forEach(element => {
                 element.sock.roomId = roomId;
             });
+            let availablePlayers = [0, 1, 2, 3];
+            if (g.totalPlayersCount == 2) {
+                availablePlayers = [0, 2];
+            } else if (g.totalPlayersCount == 3) {
+                availablePlayers = [0, 2, 3];
+            }
+            let temp = g.players;
+            let j = -1;
+            g.players = [];
+            for (let i = 0; i < 4; i++) {
+                if (availablePlayers.includes(i)) {
+                    g.allGottis[i] = {};
+                    for (let j = 0; j < g.gottisInside[i].length; j++) {
+                        let col = g.gottisInside[i][j]
+                        g.allGottis[i][col] = 0;
+                    }
+                    j++;
+                    g.players[i] = temp[j];
+                    g.players[i].playerColor = CONSTANTS.defaultColors[i];
+                    g.players[i].playerIndex = i;
+                }
+            }
+            let places = [];
+            let noOfPowerUps = 5 + Math.ceil(Math.random() * 5)
+            for (let i = 0; i < noOfPowerUps; i++) {
+                let loc = Math.ceil(Math.random() * 52);
+                if (!places.includes(loc) && loc != 40 && loc != 1 && loc != 48 && loc != 14 && loc != 9 && loc != 22 && loc != 27 && loc != 35) {
+                    g.powerUpsLocation[loc] = g.availablePowerUps[Math.floor(Math.random() * g.availablePowerUps.length)]
+                }
+            }
+            //prepares the ludo board in all the players
+            let playerIds = [];
+            let names = []
+            for (let i = 0; i < g.players.length; i++) {
+                if (g.players[i] && g.players[i].sock) {
+                    playerIds.push(g.players[i].sock.id)
+                    names.push(g.players[i].name)
+                } else {
+                    playerIds.push(0)
+                    names.push("")
+                }
+            }
+            g.players.forEach(player => {
+                if (player.sock) player.sock.emit("startGame", g.powerUpsLocation, availablePlayers, g.gottisInside, playerIds, names)
+            });
             games[roomId] = g;
-            games[roomId].startGame();
+            games[roomId].playerIndicator();
             gameLobby[num] = [];
         } else {
             sock.emit("waitForPlayers", num - gameLobby[num].length)

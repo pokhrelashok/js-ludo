@@ -3,6 +3,7 @@ class Player {
         this.name = name;
         this.sock = sock;
         this.color = '';
+        this.playerIndex = ''
         this.profileUrl = '';
     }
 }

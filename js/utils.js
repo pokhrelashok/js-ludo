@@ -27,7 +27,27 @@ function biasedRandom(bias, degree) {
         return rand;
     }
 }
+class Sleep {
+    constructor(duration) {
+        this.promise = new Promise((resolve) => {
+            this.promiseResolve = resolve
+            this.timeout = setTimeout(() => {
+                resolve()
+            }, duration)
+        })
+    }
+
+    async wait() {
+        return await this.promise
+    }
+
+    cancel() {
+        clearTimeout(this.timeout)
+        this.promiseResolve()
+    }
+}
 module.exports = {
     getKeyByValue,
-    biasedRandom
+    biasedRandom,
+    Sleep
 }

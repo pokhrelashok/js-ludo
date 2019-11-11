@@ -13,6 +13,11 @@ body {
     margin: 0 auto;
     margin-top: 20%;
     font-size: 20px;
+    animation: bounceInDown 1s ease-in-out;
+}
+
+.waitingForPlayers {
+    animation: fadeIn 1.2s ease-in-out;
 }
 
 .playerName input {
@@ -37,6 +42,7 @@ body {
 
 #startGameDialogue,
 #endGameDialogue {
+    font-size: 30px;
     animation: bounceIn 1s ease-in-out;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.1);
     text-align: center;
@@ -47,9 +53,10 @@ body {
     width: 420px;
     height: 420px;
     margin-top: 80px;
-    padding: 10px;
+    padding: 50px;
     box-sizing: border-box;
     border-radius: 10%;
+    font-weight: lighter;
 }
 
 #startGameDialogue button,
@@ -284,7 +291,7 @@ body {
     z-index: 1;
     transition: all 0.4s ease-in-out;
     font-size: 16px;
-    animation: ease-in-out bounceInLeft 1s;
+    animation: ease-in-out fadeInLeft 1.2s;
 }
 
 .message img {

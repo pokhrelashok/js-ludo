@@ -15,25 +15,7 @@ const CONSTANTS = {
     starPositions: [1, 9, 14, 22, 27, 35, 40, 48],
     timer: '',
 }
-class Sleep {
-    constructor(duration) {
-        this.promise = new Promise((resolve) => {
-            this.promiseResolve = resolve
-            this.timeout = setTimeout(() => {
-                resolve()
-            }, duration)
-        })
-    }
 
-    async wait() {
-        return await this.promise
-    }
-
-    cancel() {
-        clearTimeout(this.timeout)
-        this.promiseResolve()
-    }
-}
 
 class Game {
     constructor(players) {
@@ -57,12 +39,7 @@ class Game {
         ];
 
         //contains all the gottis as key and the positions as values red1=32
-        this.allGottis = {
-            0: {},
-            1: {},
-            2: {},
-            3: {}
-        };
+        this.allGottis = {};
         this.movableGottis = [];
         //indicates if a player has played his turn or not
         this.hasMoved = 1;
@@ -84,70 +61,6 @@ class Game {
             []
         ]
     }
-    async startGame() {
-        let availablePlayers = [0, 1, 2, 3]
-        if (this.totalPlayersCount == 2) {
-            availablePlayers = [0, 2];
-            this.gottisInside[1] = ''
-            this.gottisInside[3] = ''
-            let temp = this.players;
-            this.players = [];
-            this.players[0] = temp[0];
-            this.players[1] = '';
-            this.players[2] = temp[1];
-            this.allGottis = {
-                0: {},
-                2: {}
-            };
-        } else if (this.totalPlayersCount == 3) {
-            availablePlayers = [0, 2, 3];
-            this.gottisInside[1] = ''
-            let temp = this.players;
-            this.players = [];
-            this.players[0] = temp[0];
-            this.players[1] = '';
-            this.players[2] = temp[1];
-            this.players[3] = temp[2];
-            this.allGottis = {
-                0: {},
-                2: {},
-                3: {}
-            };
-        }
-
-        //putting position data of all the gottis inside the allgottispositions
-        for (let i = 0; i < this.gottisInside.length; i++) {
-            for (let j = 0; j < this.gottisInside[i].length; j++) {
-                this.allGottis[i][
-                    [this.gottisInside[i][j]]
-                ] = 0;
-            }
-        }
-        let places = [];
-        let noOfPowerUps = 5 + Math.ceil(Math.random() * 5)
-        for (let i = 0; i < noOfPowerUps; i++) {
-            let loc = Math.ceil(Math.random() * 52);
-            if (!places.includes(loc) && loc != 40 && loc != 1 && loc != 48 && loc != 14 && loc != 9 && loc != 22 && loc != 27 && loc != 35) {
-                this.powerUpsLocation[loc] = this.availablePowerUps[Math.floor(Math.random() * this.availablePowerUps.length)]
-            }
-        }
-        //prepares the ludo board in all the players
-        let playerIds = [];
-        let names = []
-        for (let i = 0; i < this.players.length; i++) {
-            if (this.players[i].sock) {
-                playerIds.push(this.players[i].sock.id)
-                names.push(this.players[i].name)
-            } else {
-                playerIds.push(0)
-                names.push("")
-            }
-        }
-        this.players.forEach(player => {
-            if (player.sock) player.sock.emit("startGame", this.powerUpsLocation, availablePlayers, this.gottisInside, playerIds, names)
-        });
-        await this.playerIndicator();
-    }
     async playerIndicator() {
         this.hasMoved = 1;
         this.movableGottis = [];
@@ -164,7 +77,7 @@ class Game {
                     this.players.forEach(player => {
                         if (player.sock) player.sock.emit("showMessage", "Powerup Time", this.currentPlayerColor)
                     });
-                    CONSTANTS.timer = new Sleep(5000);
+                    CONSTANTS.timer = new UTILS.Sleep(5000);
                     await CONSTANTS.timer.wait();
                     this.hasMoved = 1;
                     //powerups bata focus hata vanera code han}
@@ -250,7 +163,7 @@ class Game {
             })
             //cuts players with 30% chance
             if (biases.length > 0) {
-                this.movementAmount = UTILS.biasedRandom(biases, 100)
+                this.movementAmount = UTILS.biasedRandom(biases, 30)
             } else this.movementAmount = UTILS.biasedRandom(6, 20)
         }
         console.log("the movement amount came to be " + this.movementAmount)

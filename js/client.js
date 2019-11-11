@@ -14,7 +14,7 @@ const showMessage = (text, color) => {
     d.appendChild(p)
     setTimeout(() => {
         d.removeChild(p)
-    }, 4000);
+    }, 3000);
 }
 const sock = io();
 let GAMEDATA = {
