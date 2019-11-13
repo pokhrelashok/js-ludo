@@ -162,7 +162,7 @@ class Game {
             })
             //cuts players with 30% chance
             if (biases.length > 0) {
-                this.movementAmount = UTILS.biasedRandom(biases, 30)
+                this.movementAmount = UTILS.biasedRandom(biases, 100)
             } else this.movementAmount = UTILS.biasedRandom(6, 20)
         }
         console.log("the movement amount came to be " + this.movementAmount)
@@ -329,23 +329,12 @@ class Game {
     checkFinalPosition(fd) {
         if (!CONSTANTS.starPositions.includes(fd)) {
             if (this.oppPositions.hasOwnProperty(fd)) {
-                let killed = UTILS.getKeyByValue(this.allGottis, fd);
-                let ind = -1;
-                let killedPlayerIndex = -1;
-                for (let j = 0; j < this.gottisOutside.length; j++) {
-                    if (this.gottisOutside[j].indexOf(killed) != -1) {
-                        ind = this.gottisOutside[j].indexOf(killed);
-                        killedPlayerIndex = j;
-                        break;
-                    }
-                }
-                if (ind != -1) {
-                    this.gottisOutside[killedPlayerIndex].splice(ind, 1)
-                    this.allGottis[killedPlayerIndex][killed] = 0;
-                    this.gottisInside[killedPlayerIndex].push(killed);
-                }
+                let killed = this.oppPositions[fd];
+                console.log("someone has been murdered")
+                console.log(killed);
+                console.log("someone has been murdered")
                 return {
-                    "killed": this.oppPositions[fd],
+                    "killed": killed,
                     "powerUp": ''
                 };
             } else if (this.powerUpsLocation.hasOwnProperty(fd)) {

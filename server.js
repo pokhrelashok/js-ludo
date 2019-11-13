@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 const http = require('http')
 const socket = require('socket.io')
+const UTILS = require("./js/utils")
 const server = http.createServer(app);
 const clientPath = `${__dirname}/`
 const Game = require("./js/game.js")
@@ -99,6 +100,21 @@ io.on('connection', async (sock) => {
                     games[sock.roomId].winners.push(CONSTANTS.defaultColors[games[sock.roomId].playerIndex]);
                 }
             }
+            if (result["killed"]) {
+                let killed = result['killed']
+                let ind = -1;
+                let killedPlayerIndex = -1;
+                for (let j = 0; j < games[sock.roomId].gottisOutside.length; j++) {
+                    if (games[sock.roomId].gottisOutside[j].indexOf(killed) !== -1) {
+                        ind = games[sock.roomId].gottisOutside[j].indexOf(killed);
+                        killedPlayerIndex = j;
+                        games[sock.roomId].gottisOutside[killedPlayerIndex].splice(ind, 1)
+                        games[sock.roomId].allGottis[killedPlayerIndex][killed] = 0;
+                        games[sock.roomId].gottisInside[killedPlayerIndex].push(killed);
+                        break;
+                    }
+                }
+            }
             games[sock.roomId].playerIndicator();
         }
     })
@@ -167,7 +183,8 @@ io.on('connection', async (sock) => {
                 }
             }
             let places = [];
-            let noOfPowerUps = 5 + Math.ceil(Math.random() * 5)
+            // let noOfPowerUps = 5 + Math.ceil(Math.random() * 5)
+            let noOfPowerUps = 0;
             for (let i = 0; i < noOfPowerUps; i++) {
                 let loc = Math.ceil(Math.random() * 52);
                 if (!places.includes(loc) && loc != 40 && loc != 1 && loc != 48 && loc != 14 && loc != 9 && loc != 22 && loc != 27 && loc != 35) {
