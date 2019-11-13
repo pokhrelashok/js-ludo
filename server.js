@@ -79,9 +79,26 @@ io.on('connection', async (sock) => {
             if (player.sock) player.sock.emit("showMessage", message, playerColor)
         });
     })
-    sock.on("finishedMoving", () => {
+    sock.on("finishedMoving", (result) => {
         if (games[sock.roomId].players[games[sock.roomId].playerIndex].sock.id == sock.id) {
             console.log("finished moving" + sock.id)
+            if (result['gottiHome']) {
+                let ind = games[sock.roomId].gottisOutside[games[sock.roomId].playerIndex].indexOf(result['gottiHome']);
+                games[sock.roomId].gottisOutside[games[sock.roomId].playerIndex].splice(ind, 1);
+                delete games[sock.roomId].allGottis[games[sock.roomId].playerIndex][result['gottiHome']];
+            }
+            if (result['gameFinished']) {
+                games[sock.roomId].winners.push(games[sock.roomId].currentPlayerColor);
+                delete games[sock.roomId].allGottis[games[sock.roomId].playerIndex];
+                if (Object.keys(games[sock.roomId].allGottis).length == 1) {
+                    console.log("game really done");
+                    games[sock.roomId].playerIndex = (games[sock.roomId].playerIndex + 1) % 4;
+                    while (!games[sock.roomId].allGottis.hasOwnProperty(games[sock.roomId].playerIndex)) {
+                        games[sock.roomId].playerIndex = (games[sock.roomId].playerIndex + 1) % 4;
+                    }
+                    games[sock.roomId].winners.push(CONSTANTS.defaultColors[games[sock.roomId].playerIndex]);
+                }
+            }
             games[sock.roomId].playerIndicator();
         }
     })

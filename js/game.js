@@ -13,6 +13,7 @@ const CONSTANTS = {
     blueEntry: 120,
     redEntry: 130,
     starPositions: [1, 9, 14, 22, 27, 35, 40, 48],
+    defaultColors: ['red', 'green', 'yellow', 'blue'],
     timer: '',
 }
 
@@ -27,7 +28,6 @@ class Game {
         this.currentPlayerColor = ''
         this.isPowerUpActive = 0;
         this.isPowerUpRunning = 0;
-        this.movableGottisPositions = [];
         this.players = players;
         this.totalPlayersCount = players.length;
         this.winners = [];
@@ -64,7 +64,6 @@ class Game {
     async playerIndicator() {
         this.hasMoved = 1;
         this.movableGottis = [];
-        this.movableGottisPositions = [];
         if (this.sixCount == 0 && this.noPlayerChange == 0) {
             if (this.powerUps[this.playerIndex].length > 0) {
                 this.isPowerUpActive++;
@@ -186,9 +185,15 @@ class Game {
             else if (this.movableGottis.length == 1) {
                 await this.moveGotti(this.movableGottis[0]);
             } else {
+                let movableGottisPositions = [];
+                this.movableGottis.forEach((id) => {
+                    movableGottisPositions.push(this.allGottis[this.playerIndex][id]);
+                })
                 if (this.gottisOutside[this.playerIndex].length == 0) await this.moveGotti(this.movableGottis[0]);
                 //checks if all the available gottis are in the same position
-                else if (this.movableGottisPositions.every((val, i, arr) => val === arr[0])) this.moveGotti(this.movableGottis[0])
+                else if (movableGottisPositions.every((val, i, arr) => val === arr[0])) {
+                    this.moveGotti(this.movableGottis[0])
+                }
 
             }
         } else {
@@ -204,6 +209,12 @@ class Game {
                 let positions = [];
                 let currPos = this.allGottis[this.playerIndex][id]
                 let finalPos = currPos + this.movementAmount;
+                let result = {
+                    "killed": '',
+                    "powerUp": '',
+                    "gottiHome": '',
+                    "gameFinished": '',
+                };
                 for (let i = currPos; i <= finalPos; i++) {
                     if (i == 53) {
                         i = 1;
@@ -211,7 +222,10 @@ class Game {
                     }
                     positions.push(i);
                     if (i == 105 || i == 115 || i == 125 || i == 135) {
-                        //write gameOver code
+                        result["gottiHome"] = id;
+                        if (this.gottisInside[this.playerIndex].length == 0) {
+                            result['gameFinished'] = this.playerIndex;
+                        }
                     }
                     if (this.currentPlayerColor == "red" && i == CONSTANTS.redStop) {
                         finalPos = CONSTANTS.redEntry + finalPos - i - 1;
@@ -227,9 +241,14 @@ class Game {
                         i = CONSTANTS.yellowEntry - 1;
                     }
                 }
-                this.allGottis[this.playerIndex][id] = finalPos;
+                console.log("moving throught positions-----------")
+                console.log(positions)
+                console.log("moving throught positions-----------")
+                this.allGottis[this.playerIndex][id] = positions[positions.length - 1];
                 //checing final position for any gotti or powerUp
-                let result = this.checkFinalPosition(this.allGottis[this.playerIndex][id]);
+                let r = this.checkFinalPosition(this.allGottis[this.playerIndex][id]);
+                result['killed'] = r['killed']
+                result['powerUp'] = r['powerUp']
                 this.players.forEach(async player => {
                     if (player.sock) await player.sock.emit("moveGotti", id, this.playerIndex, positions, this.gottisInside, this.gottisOutside, result)
                 });
@@ -286,33 +305,18 @@ class Game {
     }
 
     async findMovableGottis() {
-        if (this.movementAmount == 6) {
-            for (let key in this.allGottis[this.playerIndex]) {
-                if (this.allGottis[this.playerIndex].hasOwnProperty(key)) {
-                    if (this.allGottis[this.playerIndex][key] == 0) {
-                        this.movableGottis.push(key)
-                        this.movableGottisPositions.push(0)
-                    } else if (this.isOnFinishLine(this.allGottis[this.playerIndex][key])) {
-                        this.movableGottis.push(key)
-                        this.movableGottisPositions.push(this.allGottis[this.playerIndex][key])
-                    }
-                }
-            }
-        } else {
-            for (let key in this.allGottis[this.playerIndex]) {
-                if (this.allGottis[this.playerIndex].hasOwnProperty(key)) {
-                    if (this.allGottis[this.playerIndex][key] != 0 && this.isOnFinishLine(this.allGottis[this.playerIndex][key])) {
-                        this.movableGottis.push(key);
-                        this.movableGottisPositions.push(this.allGottis[this.playerIndex][key])
-                    }
-                }
+        for (let key in this.allGottis[this.playerIndex]) {
+            if (this.allGottis[this.playerIndex].hasOwnProperty(key)) {
+                if (this.allGottis[this.playerIndex][key] == 0) {
+                    if (this.movementAmount == 6) this.movableGottis.push(key)
+                } else if (this.isOnFinishLine(this.allGottis[this.playerIndex][key])) this.movableGottis.push(key)
             }
         }
         await this.players[this.playerIndex].sock.emit("addShakeAnimation", this.movableGottis);
     }
     isOnFinishLine(currPos) {
-        if (currPos > 100) {
-            if ((currPos >= 100 && currPos + movementAmount < 106) || (currPos >= 110 && currPos + movementAmount < 116) || (currPos >= 120 && currPos + movementAmount < 126 || (currPos >= 130 && currPos + movementAmount < 136)) || currPos < 100) {
+        if (currPos >= 100) {
+            if ((currPos >= 100 && currPos + this.movementAmount <= 105) || (currPos >= 110 && currPos + this.movementAmount <= 115) || (currPos >= 120 && currPos + this.movementAmount <= 125 || (currPos >= 130 && currPos + this.movementAmount <= 135))) {
                 return 1;
             } else {
                 return 0;
@@ -341,12 +345,14 @@ class Game {
                     this.gottisInside[killedPlayerIndex].push(killed);
                 }
                 return {
-                    "killed": this.oppPositions[fd]
+                    "killed": this.oppPositions[fd],
+                    "powerUp": ''
                 };
             } else if (this.powerUpsLocation.hasOwnProperty(fd)) {
                 this.powerUps[this.playerIndex].push(this.powerUpsLocation[fd]);
                 delete this.powerUpsLocation[fd]
                 return {
+                    "killed": '',
                     "powerUp": fd
                 };
             }

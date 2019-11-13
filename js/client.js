@@ -90,7 +90,6 @@ sock.on("startGame", (powerUps, availablePlayers, gottisInside, playerIds, names
             //placing gottis in positions
             for (let j = 0; j < 4; j++) {
                 let gotti = document.createElement("img");
-
                 name.classList.add("name")
                 gotti.classList.add("Gotti");
                 gotti.id = gottisInside[i][j];
@@ -208,13 +207,13 @@ sock.on("removeShakeAnimation", (gottisInside, gottisOutside) => {
 })
 
 removeShakeAnimation = (gottisInside, gottisOutside) => {
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < gottisOutside.length; i++) {
         for (let j = 0; j < gottisOutside[i].length; j++) {
             let gotti = document.querySelector("#" + gottisOutside[i][j]);
             if (gotti) gotti.classList.remove("useMe")
         }
     }
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < gottisInside.length; i++) {
         for (let j = 0; j < gottisInside[i].length; j++) {
             let gotti = document.querySelector("#" + gottisInside[i][j]);
             if (gotti) gotti.classList.remove("useMe")
@@ -239,19 +238,23 @@ sock.on("moveGotti", async (id, playerIndex, positions, gottisInside, gottisOuts
         //if the gotti has reached the finish line
         i++;
         fd = document.getElementById(positions[i]);
-        fdGottis = fd.getElementsByClassName("Gotti");
-        //checks the position for any opponents or powerups
-        await new Promise(r => setTimeout(r, 200))
-        if (fdGottis.length === 2) fd.classList.add("twoGotti")
-        else if (fdGottis.length > 2) fd.classList.add("multipleGotti")
-        fd.appendChild(g);
+        if (fd) {
+            fdGottis = fd.getElementsByClassName("Gotti");
+            //checks the position for any opponents or powerups
+            await new Promise(r => setTimeout(r, 200))
+            if (fdGottis.length === 2) fd.classList.add("twoGotti")
+            else if (fdGottis.length > 2) fd.classList.add("multipleGotti")
+            fd.appendChild(g);
+        }
         if (i == positions.length - 1) {
             if (result["killed"]) killGotti(result['killed']);
-            else if (result['powerUp']) addPowerUp(result['powerUp'])
+            if (result['powerUp']) addPowerUp(result['powerUp'])
+            if (result["gottiHome"]) gottiHome(result['gottiHome'])
+            if (result["gameFinished"]) gottiHome(result['gottiHome'])
         }
     }
     if (GAMEDATA.playerIds[GAMEDATA.playerIndex] == sock.id) {
-        sock.emit("finishedMoving", "");
+        sock.emit("finishedMoving", result);
     }
 })
 
@@ -296,7 +299,7 @@ killGotti = (killed) => {
     }
 }
 
-sock.on("gameFinished", () => {
+gameFinished = () => {
     let endGame = document.querySelector("#endGameDialogue");
     for (let i = 0; i < totalPlayersCount; i++) {
         let el = document.createElement("button");
@@ -305,7 +308,15 @@ sock.on("gameFinished", () => {
     }
     endGame.classList.remove("hidden");
     document.querySelector("#Canvas").classList.add("hidden");
-})
+}
+
+gottiHome = (id) => {
+    let col = id.replace(/[0-9]/g, "");
+    let gotti = document.querySelector('#' + id);
+    document.querySelector(".finished_" + col).appendChild(gotti);
+    console.log(gotti);
+    console.log(document.querySelector(".finished_" + col))
+}
 
 sock.on("removePowerUp", type => {
     let pp = document.querySelector(".powerUps");

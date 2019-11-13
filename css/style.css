@@ -115,7 +115,7 @@ body {
 .innerHome div {
     box-sizing: border-box;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-evenly;
     width: 60%;
     height: 20%;
     margin: 0 auto;
@@ -180,6 +180,8 @@ body {
     height: 40%;
     width: 40%;
     border-radius: 50%;
+    margin-right: 5px;
+    margin-left: 5px;
     background-color: #ecf0f1
 }
 
@@ -243,11 +245,11 @@ body {
 }
 
 .name {
+    font-weight: bold;
     position: absolute;
-    top: 95%;
-    left: 30%;
-    font-weight: lighter;
-    font-size: 18px;
+    color: white;
+    bottom: 0%;
+    font-size: 16px;
 }
 
 
@@ -257,11 +259,6 @@ body {
     right: -20px;
 }
 
-.box_blue .name,
-.box_green .name {
-    left: auto;
-    right: 30%;
-}
 
 .box_blue .profilePic,
 .box_yellow .profilePic {
@@ -272,7 +269,7 @@ body {
 .box_red .name,
 .box_blue .name {
     top: auto;
-    bottom: 95%;
+    top: 0%;
 }
 
 
@@ -292,7 +289,7 @@ body {
     z-index: 1;
     transition: all 0.4s ease-in-out;
     font-size: 16px;
-    animation: ease-in-out fadeIn 0.8s;
+    animation: bounceInRight 0.5s;
 }
 
 
@@ -303,11 +300,12 @@ body {
     height: 0;
     left: auto;
     right: -12px;
-    top: 0;
+    top: -1px;
     bottom: auto;
     border: 10px solid;
     border-color: black transparent transparent transparent;
 }
+
 
 .message img {
     background-color: transparent;
@@ -318,12 +316,22 @@ body {
 
 #Canvas .box_green .message p,
 #Canvas .box_green .message img,
-#Canvas .yellow .message img,
+#Canvas .box_yellow .message img,
 #Canvas .box_yellow .message p {
-    animation: bounceInRight 0.5s;
+
     left: auto;
     right: 25%;
 }
+
+#Canvas .box_red .message p,
+#Canvas .box_red .message img,
+#Canvas .box_green .message img,
+#Canvas .box_green .message p {
+    animation: bounceInLeft 0.5s;
+    left: 25%;
+}
+
+
 
 #Canvas .box_blue .message p,
 #Canvas .box_blue .message img,
@@ -331,6 +339,15 @@ body {
 #Canvas .box_yellow .message p {
     bottom: -50px;
     top: auto;
+}
+
+#Canvas .box_red .message p:before,
+#Canvas .box_green .message p:before {
+    right: auto;
+    left: -12px;
+    top: auto;
+    bottom: -2px;
+    border-color: transparent transparent black transparent;
 }
 
 #Canvas .message div {
@@ -370,14 +387,14 @@ body {
     text-align: center;
     display: none;
     position: absolute;
-    background-color: #ecf0f1;
-    border: 2px #f8e2a5 solid;
+    color: white;
+    background-color: black;
     padding: 4px;
     border-radius: 8px;
     top: -10%;
     left: 0px;
     width: 240px;
-    font-size: 15px;
+    font-size: 14px;
     transform-origin: bottom left;
 }
 
@@ -491,7 +508,7 @@ body {
 }
 
 .multipleGotti .Gotti {
-    height: 25% !important;
+    height: 50% !important;
 }
 
 .hidden {
@@ -505,7 +522,7 @@ body {
     width: 600px;
     overflow-y: scroll;
     animation: bounceIn 1s ease-in-out;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.1);
+    /* box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1), 0 6px 20px 0 rgba(0, 0, 0, 0.1); */
     padding: 10px;
     background: #ecf0f1;
     list-style: none;
@@ -524,14 +541,16 @@ body {
     border-radius: 4px;
 }
 
-.innerHome {
+.colorWheel {
+    top: 0;
+    left: 0;
+    position: absolute;
     width: 0;
     height: 0;
     border-top: 50px solid #2ecc71;
     border-left: 50px solid #e74c3c;
     border-right: 50px solid #eabd43;
     border-bottom: 50px solid #3498db;
-
 }
 
 .properties .powerUps,
@@ -544,6 +563,7 @@ body {
 
 
 .properties .powerUps h2 {
+    font-weight: lighter;
     padding: 0;
     margin: 0;
     margin-top: 6px;
@@ -620,7 +640,7 @@ body {
 
 .dm button i {
     color: #3498db;
-    font-size: 28px;
+    font-size: 32px;
 }
 
 ::-webkit-scrollbar {
