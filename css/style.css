@@ -354,7 +354,7 @@ body {
     cursor: pointer;
     position: relative;
     box-sizing: border-box;
-    width: 40px;
+    width: 50px;
     transition: all 0.2s ease-out;
     transform-origin: center;
 }

@@ -183,8 +183,7 @@ io.on('connection', async (sock) => {
                 }
             }
             let places = [];
-            // let noOfPowerUps = 5 + Math.ceil(Math.random() * 5)
-            let noOfPowerUps = 0;
+            let noOfPowerUps = 5 + Math.ceil(Math.random() * 5)
             for (let i = 0; i < noOfPowerUps; i++) {
                 let loc = Math.ceil(Math.random() * 52);
                 if (!places.includes(loc) && loc != 40 && loc != 1 && loc != 48 && loc != 14 && loc != 9 && loc != 22 && loc != 27 && loc != 35) {

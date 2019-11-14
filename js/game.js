@@ -162,7 +162,7 @@ class Game {
             })
             //cuts players with 30% chance
             if (biases.length > 0) {
-                this.movementAmount = UTILS.biasedRandom(biases, 100)
+                this.movementAmount = UTILS.biasedRandom(biases, 30)
             } else this.movementAmount = UTILS.biasedRandom(6, 20)
         }
         console.log("the movement amount came to be " + this.movementAmount)
