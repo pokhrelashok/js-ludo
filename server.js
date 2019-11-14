@@ -147,6 +147,9 @@ io.on('connection', async (sock) => {
                 }
             }
             delete playersInGame[sock.id];
+            console.log("remaining players in the game rea")
+            console.log(Object.keys(playersInGame).length)
+            console.log("remaining players in the game rea")
         }
     })
     sock.on("playerName", name => {
@@ -217,7 +220,9 @@ io.on('connection', async (sock) => {
             games[roomId].playerIndicator();
             gameLobby[num] = [];
         } else {
-            sock.emit("waitForPlayers", num - gameLobby[num].length)
+            gameLobby[num].forEach(el => {
+                el.sock.emit("waitForPlayers", num - gameLobby[num].length)
+            })
         }
     })
 
@@ -237,6 +242,7 @@ gameOver = (sock) => {
     console.log("-----------------------w")
     games[sock.roomId].players.forEach(player => {
         if (player.sock) player.sock.emit("gameOver", games[sock.roomId].winners)
+        playersInGame[sock.id].inGame = false;
     })
     delete games[sock.roomId]
 }

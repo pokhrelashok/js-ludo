@@ -61,6 +61,7 @@ sock.on("waitForPlayers", (num) => {
     p.innerText = "WAITING FOR " + num + " PLAYERS!"
     document.querySelector(".waitingForPlayers").classList.remove("hidden");
     document.querySelector("#startGameDialogue").classList.add("hidden");
+    document.querySelector(".waitingForPlayers").innerHTML = '';
     document.querySelector(".waitingForPlayers").appendChild(p);
 })
 enterGame = () => {
@@ -129,7 +130,7 @@ sock.on("gameOver", (winners) => {
     document.querySelector("#endGameDialogue").classList.remove("hidden");
     winners.forEach((element, index) => {
         let e = document.createElement("button");
-        e.innerText = index + ".  " + element;
+        e.innerText = (index + 1) + ".  " + element;
         document.querySelector("#endGameDialogue div").appendChild(e);
     })
 })
@@ -158,7 +159,11 @@ sock.on("removeGottiShake", () => {
 document.addEventListener("click", async (e) => {
     //if a gotti has been clicked
     let gottiId = e.target.id;
-    if (gottiId.includes("players")) {
+    if (gottiId.includes("playAgain")) {
+        document.querySelector("#endGameDialogue div").innerHTML = '';
+        document.querySelector("#endGameDialogue").classList.add("hidden");
+        document.querySelector("#startGameDialogue").classList.remove("hidden");
+    } else if (gottiId.includes("players")) {
         sock.emit("joinGame", gottiId);
     } else if ((e.target.className == "roll" || e.target.className.includes("gif"))) {
         console.log("roll please")
