@@ -123,6 +123,17 @@ sock.on("powerUpTime", async () => {
 
 })
 
+sock.on("gameOver", (winners) => {
+    document.querySelector("#Canvas").classList.add("hidden");
+    document.querySelector(".properties").classList.add("hidden");
+    document.querySelector("#endGameDialogue").classList.remove("hidden");
+    winners.forEach((element, index) => {
+        let e = document.createElement("button");
+        e.innerText = index + ".  " + element;
+        document.querySelector("#endGameDialogue div").appendChild(e);
+    })
+})
+
 sock.on("playerIndicator", (currentPlayerColor, id) => {
     console.log("adding highlight");
     let all = document.querySelectorAll(".home .profilePic");
@@ -195,6 +206,20 @@ sendMessage = (src) => {
     }
     if (message) sock.emit("sendMessage", message)
 }
+
+sock.on("removePlayer", (color) => {
+    console.log("removing player")
+    let name = document.querySelector("." + color + " .name");
+    name.parentElement.removeChild(name);
+    let profile = document.querySelector("." + color + " .profilePic");
+    profile.parentElement.removeChild(profile);
+    for (let i = 1; i <= 4; i++) {
+        let gotti = document.querySelector("#" + color + i);
+        if (gotti) {
+            gotti.parentElement.removeChild(gotti);
+        }
+    }
+})
 
 sock.on("rollTheDice", async (movementAmount) => {
     let gif = document.querySelector(".gif");

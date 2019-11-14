@@ -93,11 +93,7 @@ io.on('connection', async (sock) => {
                 delete games[sock.roomId].allGottis[games[sock.roomId].playerIndex];
                 if (Object.keys(games[sock.roomId].allGottis).length == 1) {
                     console.log("game really done");
-                    games[sock.roomId].playerIndex = (games[sock.roomId].playerIndex + 1) % 4;
-                    while (!games[sock.roomId].allGottis.hasOwnProperty(games[sock.roomId].playerIndex)) {
-                        games[sock.roomId].playerIndex = (games[sock.roomId].playerIndex + 1) % 4;
-                    }
-                    games[sock.roomId].winners.push(CONSTANTS.defaultColors[games[sock.roomId].playerIndex]);
+                    gameOver(sock);
                 }
             }
             if (result["killed"]) {
@@ -123,26 +119,35 @@ io.on('connection', async (sock) => {
             games[sock.roomId].powerUpClicked(type);
         }
     })
-    sock.on("gameOver", () => {
-        let ind = gottisOutside[playerIndex].indexOf(id);
-        if (ind >= 0) gottisOutside[playerIndex].splice(ind, 1)
-        if (gottisOutside[playerIndex].length == 0 && gottisInside[playerIndex].length == 0) {
-            ind = games[sock.roomId].availablePlayers.indexOf(games[sock.roomId].playerIndex)
-            games[sock.roomId].availablePlayers.splice(ind, 1);
-            games[sock.roomId].winners.push(games[sock.roomId].currentPlayerColor);
-            if (games[sock.roomId].availablePlayers.length == 1) {
-                games[sock.roomId].playerIndicator();
-                games[sock.roomId].winners.push(games[sock.roomId].currentPlayerColor);
-                games[sock.roomId].players.forEach(player => {
-                    if (player.sock) player.sock.emit("gameFinished", "")
-                });
-            }
 
-        }
-    })
 
-    sock.on("disconnect", () => {
+    sock.on("disconnect", async () => {
         console.log("player disconnected!")
+        console.log(playersInGame)
+        if (playersInGame[sock.id]) {
+            if (playersInGame[sock.id].inGame) {
+                if (sock.playerIndex == games[sock.roomId].playerIndex) {
+                    console.log("yes same player")
+                    games[sock.roomId].noPlayerChange = 0;
+                    games[sock.roomId].sixCount = 0;
+                    games[sock.roomId].playerIndicator();
+                }
+                games[sock.roomId].players.forEach(player => {
+                    if (player.sock) player.sock.emit("removePlayer", CONSTANTS.defaultColors[sock.playerIndex]);
+                })
+                delete games[sock.roomId].allGottis[sock.playerIndex]
+                if (Object.keys(games[sock.roomId].allGottis).length == 1) {
+                    await gameOver(sock);
+                }
+            } else {
+                if (playersInGame[sock.id].gameMode != 0) {
+                    console.log("this fucker has chosen number of players");
+                    let ind = gameLobby[playersInGame[sock.id].gameMode].indexOf(playersInGame[sock.id]);
+                    gameLobby[playersInGame[sock.id].gameMode].splice(ind, 1);
+                }
+            }
+            delete playersInGame[sock.id];
+        }
     })
     sock.on("playerName", name => {
         let p = new Player(name, sock);
@@ -151,21 +156,25 @@ io.on('connection', async (sock) => {
     })
     sock.on("joinGame", type => {
         let num = parseInt(type.replace("players"))
-        console.log("Number of players " + num)
         gameLobby[num].push(playersInGame[sock.id])
-        console.log(gameLobby)
         if (gameLobby[num].length == num) {
             roomId++;
-            let g = new Game(gameLobby[num])
-            gameLobby[num].forEach(element => {
-                element.sock.roomId = roomId;
-            });
             let availablePlayers = [0, 1, 2, 3];
-            if (g.totalPlayersCount == 2) {
+            if (num == 2) {
                 availablePlayers = [0, 2];
-            } else if (g.totalPlayersCount == 3) {
+            } else if (num == 3) {
                 availablePlayers = [0, 2, 3];
             }
+            gameLobby[num].forEach((element, index) => {
+                element.sock.roomId = roomId;
+                element.inGame = true;
+                element.gameMode = num;
+                element.sock.playerIndex = availablePlayers[index];
+                console.log('index is!!!!!!')
+                console.log(element.sock.playerIndex)
+                console.log('index is!!!!!!')
+            });
+            let g = new Game(gameLobby[num])
             let temp = g.players;
             let j = -1;
             g.players = [];
@@ -179,7 +188,6 @@ io.on('connection', async (sock) => {
                     j++;
                     g.players[i] = temp[j];
                     g.players[i].playerColor = CONSTANTS.defaultColors[i];
-                    g.players[i].playerIndex = i;
                 }
             }
             let places = [];
@@ -217,5 +225,20 @@ io.on('connection', async (sock) => {
 server.listen(port, () => {
     console.log('server starrted on port ' + port)
 })
+
+gameOver = (sock) => {
+    games[sock.roomId].playerIndex = (games[sock.roomId].playerIndex + 1) % 4;
+    while (!games[sock.roomId].allGottis.hasOwnProperty(games[sock.roomId].playerIndex)) {
+        games[sock.roomId].playerIndex = (games[sock.roomId].playerIndex + 1) % 4;
+    }
+    games[sock.roomId].winners.push(CONSTANTS.defaultColors[games[sock.roomId].playerIndex]);
+    console.log("-----------------------w")
+    console.log(games[sock.roomId].winners)
+    console.log("-----------------------w")
+    games[sock.roomId].players.forEach(player => {
+        if (player.sock) player.sock.emit("gameOver", games[sock.roomId].winners)
+    })
+    delete games[sock.roomId]
+}
 
 //only one powerUp available in one turn, the powerup time shows
